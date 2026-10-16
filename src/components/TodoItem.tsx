@@ -25,7 +25,10 @@ export function TodoItem({ todo, menuOpen, onToggle, onOpenMenu, onCloseMenu, on
         {...press}
         className="block w-full py-1 text-left text-[20px] leading-8 outline-none select-none [-webkit-touch-callout:none] focus-visible:bg-canvas"
       >
-        <span className={`pen-line ${todo.done ? 'is-struck text-muted/70' : ''}`}>{todo.text}</span>
+        <span className={`pen-line ${todo.done ? 'is-struck text-muted/70' : ''} ${todo.sent && !todo.done ? 'text-muted/70' : ''}`}>
+          {todo.text}
+        </span>
+        {todo.sent && !todo.done && <span className="ml-2 text-[15px] leading-6 text-muted">내일로</span>}
       </button>
       {menuOpen && <TodoMenu onEdit={onEdit} onDelete={onDelete} onClose={onCloseMenu} />}
     </li>

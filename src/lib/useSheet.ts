@@ -107,5 +107,55 @@ export function useSheet(date: string, onSaveError: () => void) {
     [update],
   )
 
-  return { sheet, addTodo, setDone, editTodo, removeTodo, restoreTodo, moveLeftovers, undoMoveLeftovers }
+  /** 그지 않은 일을 모두 내일로 보낸다 (F3). 보낸 할 일 id와 저장 성공 여부를 돌려준다 */
+  const sendLeftovers = useCallback(
+    (onError: () => void) => {
+      let ok = true
+      const ids: string[] = []
+      update(
+        (s) => {
+          const slots = { ...s.slots }
+          for (const { id: slot } of SLOTS)
+            slots[slot] = s.slots[slot].map((t) => {
+              if (t.done || t.sent) return t
+              ids.push(t.id)
+              return { ...t, sent: true }
+            })
+          return { ...fold(s), slots }
+        },
+        () => {
+          ok = false
+          onError()
+        },
+      )
+      return { ok, ids }
+    },
+    [update],
+  )
+
+  /** 보내기 되돌리기 — 방금 보낸 할 일의 보낸 표시를 푼다 */
+  const undoSend = useCallback(
+    (ids: string[]) =>
+      update((s) => {
+        const undo = new Set(ids)
+        const slots = { ...s.slots }
+        for (const { id: slot } of SLOTS)
+          slots[slot] = s.slots[slot].map((t) => (undo.has(t.id) ? { ...t, sent: false } : t))
+        return { ...s, slots }
+      }),
+    [update],
+  )
+
+  return {
+    sheet,
+    addTodo,
+    setDone,
+    editTodo,
+    removeTodo,
+    restoreTodo,
+    moveLeftovers,
+    undoMoveLeftovers,
+    sendLeftovers,
+    undoSend,
+  }
 }

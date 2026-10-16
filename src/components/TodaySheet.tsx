@@ -1,9 +1,11 @@
 import { useCallback, useRef, useState } from 'react'
+import { now } from '../lib/clock'
 import { dateKey } from '../lib/date'
 import { SLOTS, type SlotId } from '../lib/slots'
 import { hasSeenFirstStrike, markFirstStrikeSeen, saveDraft, type Todo } from '../lib/storage'
 import { useSheet } from '../lib/useSheet'
 import { useToast } from '../lib/useToast'
+import { SheetEnd } from './SheetEnd'
 import { SheetHeader } from './SheetHeader'
 import { Slot } from './Slot'
 import { Toast } from './Toast'
@@ -14,7 +16,18 @@ export function TodaySheet({ today }: { today: Date }) {
     () => show('방금 적은 할 일을 저장하지 못했어요. 잠시 후 다시 적어 주세요.', undefined, 6000),
     [show],
   )
-  const { sheet, addTodo, setDone, editTodo, removeTodo, restoreTodo, moveLeftovers, undoMoveLeftovers } = useSheet(dateKey(today), onSaveError)
+  const {
+    sheet,
+    addTodo,
+    setDone,
+    editTodo,
+    removeTodo,
+    restoreTodo,
+    moveLeftovers,
+    undoMoveLeftovers,
+    sendLeftovers,
+    undoSend,
+  } = useSheet(dateKey(today), onSaveError)
   const [editing, setEditing] = useState<SlotId | null>(null)
   const firstStrikeSeen = useRef(hasSeenFirstStrike())
 
@@ -62,6 +75,20 @@ export function TodaySheet({ today }: { today: Date }) {
     })
   }
 
+  function sendToTomorrow() {
+    const { ok, ids } = sendLeftovers(() =>
+      show('방금 보낸 할 일을 저장하지 못했어요. 잠시 후 다시 보내 주세요.', undefined, 6000),
+    )
+    if (!ok) return
+    show('내일 장으로 보냈어요.', {
+      label: '되돌리기',
+      onClick: () => {
+        undoSend(ids)
+        hide()
+      },
+    })
+  }
+
   return (
     <>
       <article className="rounded-media border border-hairline bg-surface px-6 pt-10 pb-6 sm:p-12">
@@ -82,6 +109,7 @@ export function TodaySheet({ today }: { today: Date }) {
             onDelete={(t, i) => remove(s.id, t, i)}
           />
         ))}
+        <SheetEnd sheet={sheet} hour={now().getHours()} onSend={sendToTomorrow} />
       </article>
       <Toast toast={toast} />
     </>
