@@ -14,6 +14,12 @@ export type Sheet = {
   prevDate?: string
   /** 지난 장에서 넘겨받은 일의 개수 — 아침 인사에 쓴다 */
   received?: number
+  /** 지난 장에 보내지 않고 남은 일 — 아침에 한 줄로 챙긴다 (D-026) */
+  leftovers?: { slot: SlotId; text: string }[]
+  /** offered: 한 줄이 보임 · moved: 오늘 장에 옮김 · folded: 적거나 그어서 접힘 */
+  leftoverState?: 'offered' | 'moved' | 'folded'
+  /** 옮겨 온 할 일 id — 되돌리기에 쓴다 */
+  movedIds?: string[]
 }
 
 const PREFIX = 'haruhanjang:'
@@ -65,14 +71,21 @@ export function openSheet(date: string): Sheet {
     // 넘긴 일은 달력상 내일이 아니라 다음에 펼치는 장으로 온다 — 같은 칸 맨 위에 (D-028)
     const prev = loadSheet(prevDate)
     let received = 0
+    const leftovers: NonNullable<Sheet['leftovers']> = []
     for (const { id: slot } of SLOTS) {
-      const carried = prev.slots[slot]
-        .filter((t) => !t.done && (t.sent || mockSent))
+      const open = prev.slots[slot].filter((t) => !t.done)
+      const carried = open
+        .filter((t) => t.sent || mockSent)
         .map((t) => ({ id: newId(), text: t.text, done: false }))
       sheet.slots[slot] = carried
       received += carried.length
+      for (const t of open) if (!(t.sent || mockSent)) leftovers.push({ slot, text: t.text })
     }
     sheet.received = received
+    if (leftovers.length) {
+      sheet.leftovers = leftovers
+      sheet.leftoverState = 'offered'
+    }
   }
   saveSheet(sheet)
   return sheet

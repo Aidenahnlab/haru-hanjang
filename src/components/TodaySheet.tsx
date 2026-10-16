@@ -14,7 +14,7 @@ export function TodaySheet({ today }: { today: Date }) {
     () => show('방금 적은 할 일을 저장하지 못했어요. 잠시 후 다시 적어 주세요.', undefined, 6000),
     [show],
   )
-  const { sheet, addTodo, setDone, editTodo, removeTodo, restoreTodo } = useSheet(dateKey(today), onSaveError)
+  const { sheet, addTodo, setDone, editTodo, removeTodo, restoreTodo, moveLeftovers, undoMoveLeftovers } = useSheet(dateKey(today), onSaveError)
   const [editing, setEditing] = useState<SlotId | null>(null)
   const firstStrikeSeen = useRef(hasSeenFirstStrike())
 
@@ -47,10 +47,25 @@ export function TodaySheet({ today }: { today: Date }) {
     })
   }
 
+  function moveFromLastSheet() {
+    const n = sheet.leftovers?.length ?? 0
+    const saved = moveLeftovers(() =>
+      show('방금 옮긴 할 일을 저장하지 못했어요. 잠시 후 다시 옮겨 주세요.', undefined, 6000),
+    )
+    if (!saved) return
+    show(`남은 일 ${n}개를 오늘 같은 칸에 옮겨 두었어요.`, {
+      label: '되돌리기',
+      onClick: () => {
+        undoMoveLeftovers()
+        hide()
+      },
+    })
+  }
+
   return (
     <>
       <article className="rounded-media border border-hairline bg-surface px-6 pt-10 pb-6 sm:p-12">
-        <SheetHeader today={today} sheet={sheet} />
+        <SheetHeader today={today} sheet={sheet} onMoveLeftovers={moveFromLastSheet} />
         {SLOTS.map((s) => (
           <Slot
             key={s.id}

@@ -11,9 +11,13 @@ function greeting(sheet: Sheet): { text: string[]; quiet: boolean } {
   return { text: ['오늘 장이 준비됐어요 ☀️', `${from} 넘긴 일 ${n}개가 기다리고 있어요!`], quiet: false }
 }
 
-export function SheetHeader({ today, sheet }: { today: Date; sheet: Sheet }) {
+type Props = { today: Date; sheet: Sheet; onMoveLeftovers: () => void }
+
+export function SheetHeader({ today, sheet, onMoveLeftovers }: Props) {
   const quote = quoteOfDay(today)
   const greet = greeting(sheet)
+  const leftoverCount = sheet.leftovers?.length ?? 0
+  const leftoverFrom = sheet.prevDate === dayBefore(sheet.date) ? '어제 장' : '지난 장'
   return (
     <header className="pb-6">
       <h1 className="font-serif text-[36px] leading-[46.8px] font-medium tracking-[-0.01em]">
@@ -30,6 +34,20 @@ export function SheetHeader({ today, sheet }: { today: Date; sheet: Sheet }) {
         <br />
         {greet.text[1]}
       </p>
+      {sheet.leftoverState === 'offered' && leftoverCount > 0 && (
+        <div className="mt-3">
+          <p className="text-[15px] leading-6 text-muted">
+            {leftoverFrom}에 남은 일 {leftoverCount}개가 있어요.
+          </p>
+          <button
+            type="button"
+            onClick={onMoveLeftovers}
+            className="mt-2 rounded-lg bg-primary px-4 py-2 text-[15px] leading-6 font-medium text-surface active:opacity-80"
+          >
+            오늘 장에 옮기기
+          </button>
+        </div>
+      )}
     </header>
   )
 }
