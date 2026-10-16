@@ -37,7 +37,11 @@ export function useSheet(date: string, onSaveError: () => void) {
     (slot: SlotId, id: string, done: boolean) =>
       update((s) => ({
         ...fold(s),
-        slots: { ...s.slots, [slot]: s.slots[slot].map((t) => (t.id === id ? { ...t, done } : t)) },
+        // 보낸 일을 자정 전에 그으면 내일로 가지 않는다 (F3 예외)
+        slots: {
+          ...s.slots,
+          [slot]: s.slots[slot].map((t) => (t.id === id ? { ...t, done, sent: done ? false : t.sent } : t)),
+        },
       })),
     [update],
   )

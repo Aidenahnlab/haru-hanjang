@@ -14,7 +14,15 @@ export function SheetEnd({ sheet, hour, onSend }: Props) {
   const sent = open.length - unsent
 
   let body: React.ReactNode = null
-  if (unsent > 0 && hour >= EVENING_HOUR) {
+  if (todos.length > 0 && open.length === 0) {
+    // 다 그은 장 — 시간과 상관없이 (D-036)
+    body = (
+      <p className="text-foreground">
+        오늘 장, 다 그었어요 ✨<br />
+        가지런히 남겨 둘게요.
+      </p>
+    )
+  } else if (unsent > 0 && hour >= EVENING_HOUR) {
     body = (
       <>
         <p>남은 일 {unsent}개가 있어요.</p>
