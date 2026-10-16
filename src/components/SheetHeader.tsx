@@ -11,9 +11,15 @@ function greeting(sheet: Sheet): { text: string[]; quiet: boolean } {
   return { text: ['오늘 장이 준비됐어요 ☀️', `${from} 넘긴 일 ${n}개가 기다리고 있어요!`], quiet: false }
 }
 
-type Props = { today: Date; sheet: Sheet; onMoveLeftovers: () => void }
+type Props = {
+  today: Date
+  sheet: Sheet
+  onMoveLeftovers: () => void
+  /** 저녁에 [내일로 보내기]가 함께 보이면 옮기기는 조용한 버튼으로 — 강조색은 화면당 하나 (D-011) */
+  quietMove?: boolean
+}
 
-export function SheetHeader({ today, sheet, onMoveLeftovers }: Props) {
+export function SheetHeader({ today, sheet, onMoveLeftovers, quietMove }: Props) {
   const quote = quoteOfDay(today)
   const greet = greeting(sheet)
   const leftoverCount = sheet.leftovers?.length ?? 0
@@ -42,7 +48,9 @@ export function SheetHeader({ today, sheet, onMoveLeftovers }: Props) {
           <button
             type="button"
             onClick={onMoveLeftovers}
-            className="mt-2 rounded-lg bg-primary px-4 py-2 text-[15px] leading-6 font-medium text-surface active:opacity-80"
+            className={`mt-2 rounded-lg px-4 py-2 text-[15px] leading-6 font-medium active:opacity-80 ${
+              quietMove ? 'border border-warm-sand bg-surface text-foreground' : 'bg-primary text-surface'
+            }`}
           >
             오늘 장에 옮기기
           </button>

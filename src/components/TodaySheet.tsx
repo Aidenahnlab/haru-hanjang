@@ -5,6 +5,7 @@ import { SLOTS, type SlotId } from '../lib/slots'
 import { hasSeenFirstStrike, markFirstStrikeSeen, saveDraft, type Todo } from '../lib/storage'
 import { useSheet } from '../lib/useSheet'
 import { useToast } from '../lib/useToast'
+import { sendLineVisible } from '../lib/evening'
 import { SheetEnd } from './SheetEnd'
 import { SheetHeader } from './SheetHeader'
 import { Slot } from './Slot'
@@ -89,10 +90,17 @@ export function TodaySheet({ today }: { today: Date }) {
     })
   }
 
+  const hour = now().getHours()
+
   return (
     <>
       <article className="rounded-media border border-hairline bg-surface px-6 pt-10 pb-6 sm:p-12">
-        <SheetHeader today={today} sheet={sheet} onMoveLeftovers={moveFromLastSheet} />
+        <SheetHeader
+          today={today}
+          sheet={sheet}
+          onMoveLeftovers={moveFromLastSheet}
+          quietMove={sendLineVisible(sheet, hour)}
+        />
         {SLOTS.map((s) => (
           <Slot
             key={s.id}
@@ -109,7 +117,7 @@ export function TodaySheet({ today }: { today: Date }) {
             onDelete={(t, i) => remove(s.id, t, i)}
           />
         ))}
-        <SheetEnd sheet={sheet} hour={now().getHours()} onSend={sendToTomorrow} />
+        <SheetEnd sheet={sheet} hour={hour} onSend={sendToTomorrow} />
       </article>
       <Toast toast={toast} />
     </>

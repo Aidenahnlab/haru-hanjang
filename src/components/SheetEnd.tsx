@@ -1,17 +1,11 @@
-import { SLOTS } from '../lib/slots'
+import { count, EVENING_HOUR } from '../lib/evening'
 import type { Sheet } from '../lib/storage'
-
-/** 저녁 6시부터 남은 일 한 줄을 보여준다 (D-034) */
-export const EVENING_HOUR = 18
 
 type Props = { sheet: Sheet; hour: number; onSend: () => void }
 
 /** 장 맨 끝 한 줄 — 남은 일 보내기, 보낸 뒤 한마디 (F3) */
 export function SheetEnd({ sheet, hour, onSend }: Props) {
-  const todos = SLOTS.flatMap((s) => sheet.slots[s.id])
-  const open = todos.filter((t) => !t.done)
-  const unsent = open.filter((t) => !t.sent).length
-  const sent = open.length - unsent
+  const { todos, open, unsent, sent } = count(sheet)
 
   let body: React.ReactNode = null
   if (todos.length > 0 && open.length === 0) {
