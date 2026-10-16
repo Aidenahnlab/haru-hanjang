@@ -1,0 +1,575 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>하루한장 — Voice</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root {
+    --bg: #ffffff;
+    --surface: #f7f7f8;
+    --line: #e7e7ea;
+    --ink: #17171a;
+    --ink-2: #4b4b55;
+    --ink-3: #8a8a96;
+    --accent: #2f6bff;
+    --accent-soft: #eef3ff;
+    --good: #12805c;
+    --good-soft: #e9f6f0;
+    --bad: #c8372d;
+    --bad-soft: #fcefee;
+    --radius: 12px;
+    --sidebar: 248px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 32px; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+    word-break: keep-all;
+  }
+  a { color: inherit; }
+
+  /* ---------- layout ---------- */
+  .layout { display: grid; grid-template-columns: var(--sidebar) minmax(0, 1fr); min-height: 100vh; }
+  main { min-width: 0; }
+  .sidebar {
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    border-right: 1px solid var(--line); padding: 28px 20px;
+  }
+  main { max-width: 820px; width: 100%; padding: 56px 56px 96px; }
+  main.is-wide { max-width: 1480px; }
+  main.is-wide .cover, main.is-wide .section > p, main.is-wide .callout { max-width: 820px; }
+
+  /* ---------- sidebar ---------- */
+  .brand { font-weight: 700; font-size: 16px; letter-spacing: -0.01em; }
+  .brand small { display: block; font-weight: 500; font-size: 12px; color: var(--ink-3); letter-spacing: 0; }
+  .nav { list-style: none; margin: 28px 0 0; padding: 0; }
+  .nav-group { font-size: 11px; font-weight: 600; color: var(--ink-3); letter-spacing: 0.06em; text-transform: uppercase; margin: 0 0 8px; }
+  .nav a {
+    display: flex; align-items: center; gap: 8px; text-decoration: none;
+    padding: 6px 10px; border-radius: 8px; color: var(--ink-2); font-size: 14px;
+  }
+  .nav a:hover { background: var(--surface); }
+  .nav .step { font-size: 11px; color: var(--ink-3); width: 14px; font-variant-numeric: tabular-nums; }
+  .nav .is-current > a { background: var(--surface); color: var(--ink); font-weight: 600; }
+  .nav .is-pending > a { color: var(--ink-3); pointer-events: none; }
+  .nav .is-pending > a::after { content: "준비 중"; margin-left: auto; font-size: 11px; }
+  .toc { list-style: none; margin: 4px 0 8px 22px; padding: 0 0 0 10px; border-left: 1px solid var(--line); }
+  .toc a { padding: 4px 10px; font-size: 13px; color: var(--ink-3); }
+  .toc a.is-active { color: var(--accent); font-weight: 600; background: none; }
+
+  /* ---------- cover ---------- */
+  .cover { padding-bottom: 40px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+  .eyebrow { font-size: 12px; font-weight: 600; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase; }
+  .cover h1 { font-size: 40px; line-height: 1.2; letter-spacing: -0.03em; margin: 10px 0 14px; }
+  .lead { font-size: 20px; line-height: 1.55; color: var(--ink-2); margin: 0; letter-spacing: -0.01em; }
+  .meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 20px; }
+  .tag { font-size: 12px; color: var(--ink-2); background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; }
+
+  /* ---------- section ---------- */
+  .section { padding-top: 48px; }
+  .section-label { font-size: 12px; font-weight: 600; color: var(--ink-3); letter-spacing: 0.06em; text-transform: uppercase; }
+  .section h2 { font-size: 22px; letter-spacing: -0.02em; margin: 4px 0 16px; }
+  .section p { margin: 0 0 12px; color: var(--ink-2); }
+
+  /* ---------- flow ---------- */
+  .flow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
+  .flow-step { position: relative; background: var(--surface); border-radius: var(--radius); padding: 18px; }
+  .flow-step:not(:last-child)::after {
+    content: "→"; position: absolute; right: -21px; top: 50%; transform: translateY(-50%);
+    color: var(--ink-3); font-size: 16px;
+  }
+  .flow-step h3 { font-size: 13px; color: var(--ink-3); font-weight: 600; margin: 0 0 6px; }
+  .flow-step p { margin: 0; color: var(--ink); font-size: 14px; }
+
+  /* ---------- cards ---------- */
+  .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .grid > .card:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .card { border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; }
+  .card h3 { font-size: 15px; margin: 0 0 4px; letter-spacing: -0.01em; }
+  .card p { margin: 0; font-size: 14px; color: var(--ink-2); }
+  .card .num { font-size: 12px; color: var(--accent); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .card.is-muted { border-style: dashed; background: none; }
+  .card.is-muted h3, .card.is-muted p { color: var(--ink-3); }
+  .sub { font-size: 13px; font-weight: 600; color: var(--ink-3); margin: 24px 0 10px; }
+
+  /* ---------- callout ---------- */
+  .callout { background: var(--accent-soft); border-radius: var(--radius); padding: 22px 24px; }
+  .callout .big { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; margin: 0 0 12px; color: var(--ink); }
+  .callout.is-empty { background: none; border: 1px dashed var(--line); color: var(--ink-3); text-align: center; padding: 28px; }
+  .callout.is-empty p { color: var(--ink-3); margin: 0; }
+  .source { font-size: 12px; color: var(--ink-3); margin-top: 12px; }
+
+  /* ---------- key-value ---------- */
+  .kv { display: grid; grid-template-columns: 120px 1fr; gap: 10px 16px; margin: 0; }
+  .kv dt { color: var(--ink-3); font-size: 13px; padding-top: 1px; }
+  .kv dd { margin: 0; color: var(--ink); }
+
+  .card .kv { grid-template-columns: 1fr; gap: 2px; margin-top: 10px; }
+  .card .kv dd { margin-bottom: 8px; font-size: 14px; color: var(--ink-2); }
+
+  /* ---------- table ---------- */
+  .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); }
+  .table-wrap table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .table-wrap th, .table-wrap td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+  .table-wrap thead th { background: var(--surface); color: var(--ink-2); font-size: 13px; font-weight: 600; white-space: nowrap; }
+  .table-wrap tbody th { font-weight: 600; color: var(--ink); white-space: nowrap; }
+  .table-wrap td { color: var(--ink-2); }
+  .table-wrap tr:last-child > * { border-bottom: 0; }
+  .table-wrap a { color: var(--accent); text-decoration: none; }
+  .table-wrap code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; background: var(--surface); padding: 1px 5px; border-radius: 4px; }
+  .table-wrap + .sub { margin-top: 28px; }
+  .table-wrap + p { margin-top: 12px; }
+
+  /* ---------- shots ---------- */
+  .shots { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .shots.is-mobile { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .shot { margin: 0; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: var(--bg); }
+  .shot img { display: block; width: 100%; height: auto; background: var(--surface); border-bottom: 1px solid var(--line); }
+  .shot figcaption { padding: 14px 16px; }
+  .shot figcaption strong { display: block; font-size: 14px; }
+  .shot figcaption p { margin: 4px 0 0; font-size: 13px; color: var(--ink-2); }
+  .shot .source { margin-top: 8px; }
+  .source a { color: inherit; }
+
+  /* ---------- refs ---------- */
+  .refs { margin: 0; padding-left: 18px; font-size: 14px; color: var(--ink-2); }
+  .refs li { margin-bottom: 6px; }
+  .refs a { color: var(--accent); text-decoration: none; word-break: break-all; }
+
+  /* ---------- spectrum ---------- */
+  .spectrum { display: grid; gap: 14px; }
+  .spectrum-row { display: grid; grid-template-columns: 110px minmax(0, 1fr) 110px; align-items: center; gap: 16px; font-size: 13px; }
+  .spectrum-label { color: var(--ink-3); }
+  .spectrum-row .spectrum-label:last-child { text-align: right; }
+  .spectrum-track { position: relative; display: flex; justify-content: space-between; align-items: center; height: 16px; }
+  .spectrum-track::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 2px; background: var(--line); transform: translateY(-50%); }
+  .spectrum-track i { position: relative; width: 10px; height: 10px; border-radius: 50%; background: var(--bg); border: 2px solid var(--line); }
+  .spectrum-track i.is-on { width: 16px; height: 16px; background: var(--accent); border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+
+  /* ---------- compare ---------- */
+  .compare { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .compare-col { border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; }
+  .compare-col h3 { font-size: 14px; margin: 0 0 10px; }
+  .compare-col.is-do h3 { color: var(--good); }
+  .compare-col.is-dont h3 { color: var(--bad); }
+  .compare-col.is-do h3::before { content: "✓ "; }
+  .compare-col.is-dont h3::before { content: "✕ "; }
+  .compare-col ul { list-style: none; margin: 0; padding: 0; }
+  .compare-col li { padding: 8px 0; border-top: 1px solid var(--line); font-size: 14px; color: var(--ink); }
+  .compare-col li:first-child { border-top: 0; padding-top: 0; }
+  .compare-col li .note { display: block; font-size: 13px; color: var(--ink-3); margin-top: 2px; }
+
+  /* ---------- say ---------- */
+  .say { margin: 8px 0 0; padding: 8px 12px; border-radius: 8px; background: var(--surface); font-size: 14px; color: var(--ink); border-left: 3px solid var(--line); }
+  .say.is-do { background: var(--good-soft); border-left-color: var(--good); }
+  .say.is-dont { background: var(--bad-soft); border-left-color: var(--bad); color: var(--ink-2); }
+
+  /* ---------- design specimen ---------- */
+  .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+  .swatch { border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; font-size: 13px; }
+  .swatch .chip-color { display: block; height: 72px; border-bottom: 1px solid var(--line); }
+  .swatch strong, .swatch code, .swatch .note { display: block; padding: 0 12px; }
+  .swatch strong { padding-top: 10px; font-size: 14px; }
+  .swatch code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; color: var(--ink-2); margin-top: 2px; }
+  .swatch .note { color: var(--ink-3); padding-bottom: 12px; margin-top: 4px; }
+  .swatches.is-small { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
+  .swatches.is-small .chip-color { height: 40px; }
+  .swatches.is-small .note { display: none; }
+  .swatches + .kv { margin-top: 16px; }
+  .type-scale { border: 1px solid var(--line); border-radius: var(--radius); }
+  .type-row { display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: 16px; align-items: baseline; padding: 16px 18px; border-top: 1px solid var(--line); }
+  .type-row:first-child { border-top: 0; }
+  .type-meta { font-size: 12px; color: var(--ink-3); }
+  .type-meta strong { display: block; font-size: 13px; color: var(--ink); }
+  .type-sample { color: var(--ink); overflow-wrap: anywhere; }
+  .token-rows { display: grid; gap: 10px; }
+  .token-row { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 16px; align-items: center; font-size: 13px; }
+  .token-box { width: 48px; height: 48px; background: var(--accent-soft); border: 1px solid var(--line); }
+  .token-box.is-space { height: 16px; min-width: 2px; border: 0; border-radius: 2px; background: var(--accent); }
+  .token-meta { color: var(--ink-2); }
+  .token-meta code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; color: var(--ink-3); margin-left: 6px; }
+  .dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; border: 1px solid var(--line); vertical-align: -1px; margin-right: 6px; }
+  .ds-preview {
+    border: 1px solid var(--line); border-radius: var(--radius); padding: 28px;
+    background: var(--ds-bg, #fff); color: var(--ds-text, var(--ink));
+    font-family: var(--ds-font, inherit); display: grid; gap: 20px;
+  }
+  .ds-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .ds-btn {
+    font: inherit; font-size: var(--ds-btn-size, 15px); font-weight: 600; cursor: default;
+    padding: var(--ds-btn-pad, 12px 20px); border-radius: var(--ds-btn-radius, var(--ds-radius, 10px)); white-space: nowrap;
+    background: var(--ds-primary, var(--accent)); color: var(--ds-on-primary, #fff); border: 1px solid transparent;
+  }
+  .ds-btn.is-secondary { background: var(--ds-surface, var(--surface)); color: var(--ds-text, var(--ink)); border-color: var(--ds-secondary-border, var(--ds-border, var(--line))); }
+  .ds-card {
+    background: var(--ds-surface, #fff); border: 1px solid var(--ds-border, var(--line));
+    border-radius: var(--ds-radius, 12px); box-shadow: var(--ds-shadow, none); padding: 18px; max-width: 360px;
+  }
+  .ds-card h4 { margin: 0 0 4px; font-size: var(--ds-title-size, 17px); }
+  .ds-card p { margin: 0; font-size: 14px; color: var(--ds-muted, var(--ink-2)); }
+  .ds-input {
+    font: inherit; font-size: 15px; width: 100%; max-width: 360px; padding: 12px 14px;
+    border-radius: var(--ds-input-radius, var(--ds-radius, 10px)); border: 1px solid var(--ds-border, var(--line));
+    background: var(--ds-bg, #fff); color: var(--ds-text, var(--ink));
+  }
+  .ds-chip { font-size: 13px; padding: 6px 12px; border-radius: 999px; background: var(--ds-surface, #fff); border: 1px solid var(--ds-border, var(--line)); color: var(--ds-text, var(--ink)); }
+  .ds-chip.is-on { border-color: transparent; background: var(--ds-primary-soft, color-mix(in srgb, var(--ds-primary, var(--accent)) 12%, #fff)); color: var(--ds-primary, var(--accent)); }
+  .preview-label { font-size: 12px; color: var(--ink-3); margin: 0 0 8px; font-family: "Pretendard Variable", Pretendard, sans-serif; }
+
+  /* ---------- flow board ---------- */
+  .board { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+  .board-col { background: var(--surface); border-radius: var(--radius); padding: 12px; min-height: 96px; }
+  .board-col h3 { display: flex; justify-content: space-between; font-size: 13px; color: var(--ink-2); margin: 0 0 10px; }
+  .board-col h3 .count { color: var(--ink-3); font-weight: 500; }
+  .board-col.is-done h3 { color: var(--good); }
+  .board-item { display: block; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; text-decoration: none; color: inherit; }
+  a.board-item:hover { border-color: var(--accent); }
+  .board-item .flow-id { font-size: 11px; font-weight: 700; color: var(--accent); }
+  .board-item strong { display: block; font-size: 14px; margin-top: 2px; }
+  .board-item p { margin: 4px 0 0; font-size: 12px; color: var(--ink-3); }
+
+  /* ---------- phones ---------- */
+  .phones { display: flex; flex-wrap: wrap; gap: 28px 34px; padding: 4px; font-family: var(--ds-font, inherit); }
+  /* 카드 크기는 모든 카드가 같다. 스크롤 화면만 .is-tall(1.5배)·.is-taller(2배)로 높이를 늘린다 */
+  .phone {
+    --phone-w: 196px; --phone-base-h: 420px; --phone-h: calc(var(--phone-base-h) * var(--phone-scale, 1));
+    position: relative; flex: 0 0 var(--phone-w); min-width: 0; /* min-width: 0 — 안의 내용이 넓어도 카드 폭이 늘어나지 않게 */
+  }
+  .phone.is-tall { --phone-scale: 1.5; }
+  .phone.is-taller { --phone-scale: 2; }
+  .phones.is-desktop .phone { --phone-w: 360px; --phone-base-h: 240px; }
+  .is-wide .phones { gap: 40px 48px; }
+  .is-wide .phone { --phone-w: 300px; --phone-base-h: 620px; }
+  .is-wide .phones.is-desktop .phone { --phone-w: 640px; --phone-base-h: 400px; }
+  .phone:not(:last-child)::after { content: "→"; position: absolute; right: -25px; top: 200px; color: var(--ink-3); font-size: 16px; font-family: "Pretendard Variable", Pretendard, sans-serif; }
+  .phone-step { font-size: 12px; color: var(--ink-3); margin-bottom: 6px; font-family: "Pretendard Variable", Pretendard, sans-serif; }
+  .phone-step strong { color: var(--ink); margin-left: 4px; }
+  .phone-screen {
+    position: relative; display: flex; flex-direction: column; gap: 10px; height: var(--phone-h); overflow: hidden;
+    border: 1px solid var(--line); border-radius: 24px; padding: 18px 14px 0;
+    background: var(--ds-bg, #fff); color: var(--ds-text, var(--ink)); box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+  .phones.is-desktop .phone-screen { border-radius: 12px; }
+  .is-wide .phone-screen { border-radius: 32px; padding: 24px 20px 0; gap: 14px; }
+  .is-wide .phones.is-desktop .phone-screen { border-radius: 14px; }
+  .is-wide .phone:not(:last-child)::after { right: -34px; top: 300px; }
+  .phone-screen .ds-btn { font-size: 13px; padding: 9px 14px; align-self: flex-start; }
+  .phone-screen .ds-card { padding: 12px; max-width: none; }
+  .phone-screen .ds-card h4 { font-size: 14px; }
+  .phone-screen .ds-card p { font-size: 12px; }
+  .phone-screen .ds-input { font-size: 13px; padding: 9px 11px; max-width: none; }
+  .phone-screen p { margin: 0; }
+  .phone-screen p.ph-title { font-size: 17px; font-weight: 700; line-height: 1.35; color: var(--ds-text, var(--ink)); }
+  .phone-screen p.ph-label { font-size: 12px; font-weight: 600; color: var(--ds-text, var(--ink)); margin-top: 4px; }
+  .phone-screen p.ph-text { font-size: 12px; line-height: 1.5; color: var(--ds-muted, var(--ink-2)); }
+  .ph-img { display: flex; align-items: center; justify-content: center; height: 88px; border-radius: var(--ds-radius, 10px); background: var(--ds-surface-alt, #eeeef0); font-size: 11px; color: var(--ds-muted, var(--ink-3)); }
+  .ph-img.is-map { height: 140px; background-image: linear-gradient(var(--ds-border, #dcdce0) 1px, transparent 1px), linear-gradient(90deg, var(--ds-border, #dcdce0) 1px, transparent 1px); background-size: 22px 22px; }
+  .ph-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .ph-sheet { margin: auto -14px 0; padding: 16px 14px 18px; border-radius: 18px 18px 0 0; background: var(--ds-surface, #fff); border-top: 1px solid var(--ds-border, var(--line)); box-shadow: 0 -6px 20px rgba(0,0,0,0.08); display: flex; flex-direction: column; gap: 8px; }
+  .ph-list { display: grid; gap: 8px; }
+  .ph-item { display: flex; gap: 10px; align-items: center; font-size: 12px; padding: 8px; border: 1px solid var(--ds-border, var(--line)); border-radius: var(--ds-radius, 10px); }
+  .ph-item::before { content: ""; flex: 0 0 32px; height: 40px; border-radius: 6px; background: var(--ds-surface-alt, #eeeef0); }
+  .ph-more {
+    position: absolute; left: 0; right: 0; bottom: 0; padding: 32px 0 12px; text-align: center; font-size: 11px;
+    color: var(--ds-muted, var(--ink-3)); background: linear-gradient(to bottom, transparent, var(--ds-bg, #fff) 55%);
+  }
+  .ph-bar { margin-top: auto; display: flex; justify-content: space-around; border-top: 1px solid var(--ds-border, var(--line)); padding: 10px 0 14px; font-size: 11px; color: var(--ds-muted, var(--ink-3)); }
+  .phone-note { font-size: 12px; color: var(--ink-2); margin-top: 8px; font-family: "Pretendard Variable", Pretendard, sans-serif; }
+
+  /* ---------- chips ---------- */
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; font-size: 14px; color: var(--ink-2); }
+  .chip.is-selected { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+  .chip.is-selected::before { content: "✓ "; }
+
+  .footer { margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 12px; color: var(--ink-3); }
+
+  /* ---------- responsive ---------- */
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: minmax(0, 1fr); }
+    .sidebar { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--line); padding: 16px; }
+    .nav { margin-top: 12px; display: flex; gap: 4px; overflow-x: auto; }
+    .nav-group, .toc { display: none; }
+    .nav a { white-space: nowrap; }
+    .nav .is-pending > a::after { content: none; }
+    main { padding: 32px 16px 64px; }
+    .cover h1 { font-size: 30px; }
+    .lead { font-size: 17px; }
+    .flow { grid-template-columns: 1fr; gap: 20px; }
+    .flow-step:not(:last-child)::after { content: "↓"; right: auto; left: 50%; top: auto; bottom: -20px; transform: translateX(-50%); }
+    .grid { grid-template-columns: 1fr; }
+    .shots { grid-template-columns: 1fr; }
+    .compare { grid-template-columns: 1fr; }
+    .type-row { grid-template-columns: 1fr; gap: 6px; }
+    .ds-preview { padding: 18px; }
+    .board { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .is-wide .phone, .is-wide .phones.is-desktop .phone { flex-basis: 100%; max-width: 340px; }
+    .phone:not(:last-child)::after, .is-wide .phone:not(:last-child)::after { content: "↓"; right: auto; left: 50%; top: auto; bottom: -26px; transform: translateX(-50%); }
+    .spectrum-row { grid-template-columns: 72px minmax(0, 1fr) 72px; gap: 10px; }
+    .shots.is-mobile { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .kv { grid-template-columns: 1fr; gap: 2px; }
+    .kv dd { margin-bottom: 10px; }
+  }
+  @media print {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    main { max-width: none; padding: 0; }
+    .section { break-inside: avoid; }
+    .shot, .card { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <aside class="sidebar">
+    <div class="brand">하루한장<small>Vibe Studio</small></div>
+    <ul class="nav">
+      <li class="nav-group">기획 문서</li>
+      <li><a href="PRODUCT.html"><span class="step">1</span>Product</a></li>
+      <li><a href="BENCHMARK.html"><span class="step">2</span>Benchmark</a></li>
+      <li class="is-current">
+        <a href="VOICE.html"><span class="step">3</span>Voice</a>
+        <ul class="toc">
+          <li><a href="#summary">요약</a></li>
+          <li><a href="#traits">성격</a></li>
+          <li><a href="#tone">톤</a></li>
+          <li><a href="#vocab">어휘</a></li>
+          <li><a href="#context">상황별 톤</a></li>
+          <li><a href="#style">표기 규칙</a></li>
+          <li><a href="#dos">Do · Don't</a></li>
+        </ul>
+      </li>
+      <li class="is-pending"><a href="DESIGN.html"><span class="step">4</span>Design</a></li>
+      <li class="is-pending"><a href="FLOWS.html"><span class="step">5</span>Flows</a></li>
+    </ul>
+  </aside>
+
+  <main>
+    <header class="cover">
+      <div class="eyebrow">Voice</div>
+      <h1>하루한장</h1>
+      <p class="lead">아침마다 새 종이를 펼쳐 두고, 밤에는 남은 일을 가지런히 챙겨 두는 다정한 집사의 노트</p>
+      <div class="meta">
+        <span class="tag">확정 이름</span>
+        <span class="tag">2026-10-16</span>
+      </div>
+    </header>
+
+    <section class="section" id="summary">
+      <div class="section-label">Summary</div>
+      <h2>이렇게 말해요</h2>
+      <div class="callout">
+        <p class="big">다정한 집사처럼 말해요. 나서지 않고 조용히 챙기다가, 꼭 필요한 순간엔 정중하고 너그러운 한마디로 하루를 가지런히 정돈해 줘요.</p>
+      </div>
+    </section>
+
+    <section class="section" id="traits">
+      <div class="section-label">Traits</div>
+      <h2>핵심 성격</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>정중한</h3>
+          <dl class="kv">
+            <dt>우리는</dt><dd>&quot;~해요&quot;체로 예의 있게, 하지만 이웃에게 말하듯 편안하게 말해요.</dd>
+            <dt>우리가 아닌 것</dt><dd>호텔 컨시어지처럼 격식 차린 서비스업 말투, &quot;주인님&quot;처럼 집사 콘셉트를 연기하는 과잉 의전.</dd>
+          </dl>
+          <p class="say is-do">“오늘 장이 준비됐어요 ☀️ 어제 넘긴 일 1개가 기다리고 있어요!”</p>
+          <p class="say is-dont">“고객님, 오늘의 일정을 확인해 드리겠습니다.”</p>
+        </div>
+        <div class="card">
+          <h3>조용한</h3>
+          <dl class="kv">
+            <dt>우리는</dt><dd>말은 적게, 화면은 종이처럼 비워 두되 칸을 다 그었을 때·문제가 생겼을 때처럼 중요한 순간엔 꼭 한마디 건네요.</dd>
+            <dt>우리가 아닌 것</dt><dd>아무 반응 없는 무심함, 단어만 툭 던지는 끊긴 말투.</dd>
+          </dl>
+          <p class="say is-do">“오늘 장, 다 그었어요 ✨ 가지런히 남겨 둘게요.”</p>
+          <p class="say is-dont">“2개 남음.”</p>
+        </div>
+        <div class="card">
+          <h3>너그러운</h3>
+          <dl class="kv">
+            <dt>우리는</dt><dd>다 못 한 날도 탓하지 않고, 남은 일은 내일 같은 칸으로 조용히 옮겨 줘요.</dd>
+            <dt>우리가 아닌 것</dt><dd>채근하거나 겁주는 말, 점수·연속 기록으로 몰아붙이는 동기부여.</dd>
+          </dl>
+          <p class="say is-do">“어제 보낸 일 하나, 오전 칸에 옮겨 두었어요.”</p>
+          <p class="say is-dont">“앗, 아직 2개 남았어요! 😢 내일은 꼭 끝내봐요 💪”</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="tone">
+      <div class="section-label">Tone</div>
+      <h2>톤 스펙트럼</h2>
+      <div class="spectrum">
+        <div class="spectrum-row">
+          <span class="spectrum-label">Formal</span>
+          <div class="spectrum-track"><i></i><i></i><i class="is-on"></i><i></i><i></i></div>
+          <span class="spectrum-label">Casual</span>
+        </div>
+        <div class="spectrum-row">
+          <span class="spectrum-label">Serious</span>
+          <div class="spectrum-track"><i></i><i></i><i class="is-on"></i><i></i><i></i></div>
+          <span class="spectrum-label">Playful</span>
+        </div>
+        <div class="spectrum-row">
+          <span class="spectrum-label">Authority</span>
+          <div class="spectrum-track"><i></i><i></i><i class="is-on"></i><i></i><i></i></div>
+          <span class="spectrum-label">Peer-level</span>
+        </div>
+        <div class="spectrum-row">
+          <span class="spectrum-label">Technical</span>
+          <div class="spectrum-track"><i></i><i></i><i></i><i></i><i class="is-on"></i></div>
+          <span class="spectrum-label">Simple</span>
+        </div>
+        <div class="spectrum-row">
+          <span class="spectrum-label">Reserved</span>
+          <div class="spectrum-track"><i></i><i class="is-on"></i><i></i><i></i><i></i></div>
+          <span class="spectrum-label">Enthusiastic</span>
+        </div>
+        <div class="spectrum-row">
+          <span class="spectrum-label">Bold</span>
+          <div class="spectrum-track"><i></i><i></i><i></i><i class="is-on"></i><i></i></div>
+          <span class="spectrum-label">Subtle</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="vocab">
+      <div class="section-label">Vocabulary</div>
+      <h2>어휘</h2>
+      <div class="compare">
+        <div class="compare-col is-do">
+          <h3>쓰는 말</h3>
+          <ul>
+            <li><strong>장 / 오늘 장 / 새 장</strong><span class="note">하루 한 장의 종이. 날짜·페이지 대신 쓴다.</span></li>
+            <li><strong>칸 (새벽·오전·오후·밤 칸)</strong><span class="note">시간대를 부르는 말. &quot;세션&quot;, &quot;시간 블록&quot; 대신.</span></li>
+            <li><strong>적다 / 적어 두다</strong><span class="note">할 일을 넣을 때. &quot;추가&quot;, &quot;등록&quot; 대신.</span></li>
+            <li><strong>긋다 / 그었어요</strong><span class="note">끝낸 일. &quot;완료&quot;, &quot;체크&quot; 대신 종이의 손맛을 살린다.</span></li>
+            <li><strong>내일로 보내기 / 옮겨 두었어요</strong><span class="note">못 한 일을 넘길 때. 실패가 아니라 정리로 들리게.</span></li>
+            <li><strong>남겨 둘게요 / 넣어 둘게요</strong><span class="note">기록이 사라지지 않는다는 안심을 줄 때.</span></li>
+            <li><strong>준비됐어요 / 펼쳐 두었어요</strong><span class="note">아침에 새 장을 열 때. 미리 챙겨 둔 집사의 느낌.</span></li>
+            <li><strong>기다리고 있어요</strong><span class="note">어제 넘긴 일을 알려줄 때. 재촉이 아니라 반가움으로.</span></li>
+            <li><strong>가지런히</strong><span class="note">정돈된 느낌을 줄 때. 다 그은 장, 지난 장 정리에.</span></li>
+            <li><strong>넘겨 보기 / 지난 장</strong><span class="note">기록을 볼 때. &quot;히스토리&quot;, &quot;아카이브&quot; 대신.</span></li>
+            <li><strong>할 일</strong><span class="note">항목을 부르는 말. &quot;태스크&quot;, &quot;투두&quot; 대신.</span></li>
+            <li><strong>오늘의 한 줄</strong><span class="note">명언을 부를 때. 말은 붙이지 않고 문장만 둔다.</span></li>
+          </ul>
+        </div>
+        <div class="compare-col is-dont">
+          <h3>피하는 말</h3>
+          <ul>
+            <li><strong>고객님 / 주인님 / 분부</strong><span class="note">격식 차린 서비스업 말투, 콘셉트 연기라서.</span></li>
+            <li><strong>~드리겠습니다 / ~하시겠습니까?</strong><span class="note">호텔 컨시어지처럼 거리감이 생겨서.</span></li>
+            <li><strong>태스크 / 투두 / 싱크 / 리마인더</strong><span class="note">영어·업계 용어라서. 우리말로 쓴다.</span></li>
+            <li><strong>스트릭 / 연속 기록 / 🔥 N일째</strong><span class="note">게임식 동기부여라서.</span></li>
+            <li><strong>배지 / 레벨 / 달성 보상</strong><span class="note">종이에는 점수가 없어서.</span></li>
+            <li><strong>달성률 / N% / 목표 미달성</strong><span class="note">하루를 평가하는 말이라서.</span></li>
+            <li><strong>꼭 / 반드시 / 놓치지 마세요</strong><span class="note">채근하는 말이라서.</span></li>
+            <li><strong>사라져요 / 지금 안 하면</strong><span class="note">겁주는 말이라서.</span></li>
+            <li><strong>정말 ~하시겠어요? / 저장할까요?</strong><span class="note">계속 묻지 않는다. 바로 실행하고 되돌리기만 열어 둔다.</span></li>
+            <li><strong>분발하세요 / 힘내세요 💪</strong><span class="note">몰아붙이는 응원이라서.</span></li>
+            <li><strong>당신의 속도대로 / 이미 충분해요 🌿</strong><span class="note">위로가 과해 오글거리는 힐링 에세이 톤이라서.</span></li>
+            <li><strong>완료 / 미완료</strong><span class="note">기계적인 상태 표시라서. &quot;그었어요&quot;, &quot;남은 일&quot;로.</span></li>
+            <li><strong>&quot;2개 남음.&quot; 같은 단어 끝맺음</strong><span class="note">너무 짧아 무심하게 들려서.</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="context">
+      <div class="section-label">Context</div>
+      <h2>상황별 톤</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>맥락</th><th>톤 조절</th><th>예시 문구</th></tr></thead>
+          <tbody>
+            <tr><th>온보딩 / 첫 화면</th><td>정중함 유지, 설명은 최소로. 배울 것 없이 바로 적게 한다</td><td>&quot;오늘 장을 펼쳐 두었어요. 칸을 톡 눌러 적어 보세요.&quot;</td></tr>
+            <tr><th>빈 상태(empty state)</th><td>조용함을 가장 크게. 한 문장으로 권하기만 한다</td><td>&quot;오후에 할 일을 적어 두세요.&quot;</td></tr>
+            <tr><th>성공/완료 피드백</th><td>다정함을 올리고, 이모지 하나 허용. 기록이 남는다는 안심으로 끝맺는다</td><td>&quot;오늘 장, 다 그었어요 ✨ 가지런히 남겨 둘게요.&quot;</td></tr>
+            <tr><th>아침 첫 열기</th><td>밝음을 올린다. 이모지 하나·느낌표 하나 허용, 챙겨 둔 느낌으로</td><td>&quot;오늘 장이 준비됐어요 ☀️ 어제 넘긴 일 1개가 기다리고 있어요!&quot;</td></tr>
+            <tr><th>못 한 일 남은 밤</th><td>너그러움을 가장 크게. 탓하지 않고 옮겨 주는 쪽으로</td><td>&quot;남은 일 2개는 내일 같은 칸에 옮겨 둘게요.&quot;</td></tr>
+            <tr><th>에러/안내</th><td>정중함을 올리고 밝음은 내린다. 무엇이 일어났고 무엇을 하면 되는지 온전한 문장으로</td><td>&quot;방금 적은 할 일을 저장하지 못했어요. 잠시 후 다시 적어 주세요.&quot;</td></tr>
+            <tr><th>푸시 알림</th><td>최소로 보낸다. 보낼 땐 하루 한 번, 재촉 없이 새 장 소식만</td><td>&quot;새 장이 펼쳐졌어요 ☀️ 오늘의 한 줄도 바뀌었어요.&quot;</td></tr>
+            <tr><th>랜딩/소개 페이지</th><td>조용한 자신감. 기능 나열보다 종이 한 장의 감각으로</td><td>&quot;하루를 네 칸에 적고, 펜으로 긋듯 지워요. 그은 줄은 기록으로 남아요.&quot;</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>정중·조용·너그러움 세 성격은 어느 맥락에서도 사라지지 않는다. 아침과 다 그은 순간엔 밝음을 올리고, 에러에선 밝음을 내리고 정중함을 올리고, 못 한 일 앞에선 너그러움을 가장 크게 한다. 채근과 평가는 어떤 맥락에서도 0이다.</p>
+    </section>
+
+    <section class="section" id="style">
+      <div class="section-label">Style</div>
+      <h2>표기 규칙</h2>
+      <dl class="kv">
+        <dt>존댓말/반말</dt><dd>&quot;~해요&quot;체 기본. &quot;~습니다&quot;체와 반말은 쓰지 않는다.</dd>
+        <dt>문장 길이</dt><dd>짧게, 하지만 끊지 않는다. 단어만 툭 던지지 않고 온전한 문장으로 끝맺는다.</dd>
+        <dt>이모지</dt><dd>아침 첫 열기·다 그은 순간·알림에서만, 한 문구에 최대 1개. ☀️ ✨ 🌙처럼 종이·하루 느낌의 것만 쓰고 💪 🔥 😢는 쓰지 않는다.</dd>
+        <dt>느낌표</dt><dd>한 문구에 최대 1개. 재촉하는 문장에는 쓰지 않는다.</dd>
+        <dt>용어</dt><dd>영어·업계 용어 대신 우리말(할 일·칸·긋기·장·내일로 보내기).</dd>
+        <dt>숫자</dt><dd>&quot;2개&quot;처럼 개수까지만. 퍼센트·달성률·점수는 쓰지 않는다.</dd>
+        <dt>확인 질문</dt><dd>묻지 않고 바로 실행한다. 잘못 그었을 때 되돌리기만 조용히 열어 둔다.</dd>
+        <dt>오늘의 한 줄(명언)</dt><dd>문장만 두고 앞뒤에 설명이나 말을 붙이지 않는다.</dd>
+      </dl>
+    </section>
+
+    <section class="section" id="dos">
+      <div class="section-label">Do · Don't</div>
+      <h2>이렇게 쓰고, 이렇게 쓰지 않아요</h2>
+      <div class="compare">
+        <div class="compare-col is-do">
+          <h3>Do</h3>
+          <ul>
+            <li>미리 챙겨 둔 느낌으로 말한다 — &quot;준비됐어요&quot;, &quot;옮겨 두었어요&quot;, &quot;남겨 둘게요&quot;.</li>
+            <li>중요한 순간(다 그었을 때, 문제가 생겼을 때)엔 꼭 한마디 건넨다.</li>
+            <li>못 한 일은 탓하지 않고 내일 같은 칸으로 옮겨 주는 말로 정리한다.</li>
+            <li>아침 인사는 밝게 — 이모지 하나, 느낌표 하나까지.</li>
+            <li>종이 노트의 말(장·칸·적다·긋다)을 쓴다.</li>
+            <li>짧아도 온전한 문장으로, 끝에 챙겨 주는 한마디를 붙인다.</li>
+            <li>읽고 나서 &quot;오늘이 한 장에 정돈됐다&quot;는 기분이 들게 쓴다.</li>
+          </ul>
+        </div>
+        <div class="compare-col is-dont">
+          <h3>Don't</h3>
+          <ul>
+            <li>&quot;고객님&quot;, &quot;~드리겠습니다&quot;처럼 호텔 컨시어지 말투를 쓰지 않는다.</li>
+            <li>&quot;주인님&quot;, &quot;분부만 내려주세요&quot;처럼 집사 콘셉트를 연기하지 않는다.</li>
+            <li>연속 기록·배지·달성률 같은 게임식 동기부여를 하지 않는다.</li>
+            <li>&quot;꼭&quot;, &quot;놓치지 마세요&quot;, &quot;사라져요&quot;처럼 채근하거나 겁주지 않는다.</li>
+            <li>태스크·투두·리마인더 같은 영어·업계 용어를 쓰지 않는다.</li>
+            <li>&quot;정말 완료하시겠어요?&quot;처럼 확인을 계속 묻지 않는다.</li>
+            <li>&quot;2개 남음.&quot;처럼 단어만 툭 던져 무심하게 들리게 하지 않는다.</li>
+            <li>아무 반응 없이 지나쳐 무심해 보이게 두지 않는다.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">Vibe Studio · 원본: docs/VOICE.md</footer>
+  </main>
+</div>
+
+<script>
+  // 스크롤 위치에 맞춰 사이드바 목차 강조
+  (function () {
+    var links = [].slice.call(document.querySelectorAll('.toc a[href^="#"]'));
+    var pairs = links.map(function (a) { return [a, document.getElementById(a.getAttribute('href').slice(1))]; })
+                     .filter(function (p) { return p[1]; });
+    if (!pairs.length) return;
+    function update() {
+      var current = pairs[0];
+      var atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
+      if (atBottom) current = pairs[pairs.length - 1];
+      else pairs.forEach(function (p) { if (p[1].getBoundingClientRect().top <= 120) current = p; });
+      pairs.forEach(function (p) { p[0].classList.toggle('is-active', p === current); });
+    }
+    window.addEventListener('scroll', update, { passive: true });
+    update();
+  })();
+</script>
+</body>
+</html>
