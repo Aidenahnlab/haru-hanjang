@@ -38,3 +38,20 @@ export function saveSheet(sheet: Sheet): boolean {
 export function newId(): string {
   return crypto.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`
 }
+
+/** 첫 긋기 한마디를 이미 보여줬는지 — 맨 처음 한 번만 보여준다 */
+export function hasSeenFirstStrike(): boolean {
+  try {
+    return localStorage.getItem(`${PREFIX}firstStrikeSeen`) === '1'
+  } catch {
+    return false
+  }
+}
+
+export function markFirstStrikeSeen() {
+  try {
+    if (!mockSaveFail) localStorage.setItem(`${PREFIX}firstStrikeSeen`, '1')
+  } catch {
+    // 저장이 막혀도 이번 화면에서는 다시 띄우지 않는다 (useSheet가 기억)
+  }
+}

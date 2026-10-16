@@ -26,5 +26,14 @@ export function useSheet(date: string, onSaveError: () => void) {
     [update],
   )
 
-  return { sheet, addTodo }
+  const setDone = useCallback(
+    (slot: SlotId, id: string, done: boolean) =>
+      update((s) => ({
+        ...s,
+        slots: { ...s.slots, [slot]: s.slots[slot].map((t) => (t.id === id ? { ...t, done } : t)) },
+      })),
+    [update],
+  )
+
+  return { sheet, addTodo, setDone }
 }

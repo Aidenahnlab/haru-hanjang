@@ -38,3 +38,20 @@ body {
   word-break: keep-all;
   overflow-wrap: break-word;
 }
+
+/* 펜 선 — 줄이 바뀐 긴 할 일도 줄마다 이어서 그어진다 */
+.pen-line {
+  background-image: linear-gradient(var(--color-foreground), var(--color-foreground));
+  background-repeat: no-repeat;
+  background-position: 0 58%;
+  background-size: 0% 2px;
+  transition: background-size 360ms cubic-bezier(0.4, 0, 0.2, 1), color 300ms;
+}
+.pen-line.is-struck {
+  background-size: 100% 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pen-line {
+    transition: none;
+  }
+}
