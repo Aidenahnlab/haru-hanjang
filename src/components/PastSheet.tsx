@@ -10,6 +10,7 @@ export function PastSheet({ date, onToday }: Props) {
   const sheet = loadSheet(date)
   const day = fromKey(date)
   const quote = quoteOfDay(day)
+  const empty = SLOTS.every((s) => sheet.slots[s.id].length === 0)
 
   return (
     <>
@@ -29,7 +30,10 @@ export function PastSheet({ date, onToday }: Props) {
             <figcaption className="mt-1 text-right text-[15px] leading-6 text-muted">— {quote.author}</figcaption>
           </figure>
         </header>
-        {SLOTS.map((s) => (
+        {empty && (
+          <p className="border-t border-hairline pt-4 text-[15px] leading-6 text-muted">이 장엔 적어 둔 할 일이 없어요.</p>
+        )}
+        {!empty && SLOTS.map((s) => (
           <section key={s.id} className="border-t border-hairline py-4">
             <h2 className="text-[20px] leading-8 text-muted">{s.label}</h2>
             <ul className="mt-1">
