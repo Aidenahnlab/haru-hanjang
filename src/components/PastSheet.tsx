@@ -1,23 +1,51 @@
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { useEffect } from 'react'
 import { fromKey, sheetTitle } from '../lib/date'
 import { quoteOfDay } from '../lib/quotes'
 import { SLOTS } from '../lib/slots'
-import { loadSheet } from '../lib/storage'
+import { loadSheet, sheetDates } from '../lib/storage'
 
-type Props = { date: string; onToday: () => void }
+type Props = { date: string; todayKey: string; onGo: (date: string) => void; onToday: () => void }
 
 /** 지난 장 — 읽기만 하는 기록 (F4 ②, D-041) */
-export function PastSheet({ date, onToday }: Props) {
+export function PastSheet({ date, todayKey, onGo, onToday }: Props) {
   const sheet = loadSheet(date)
   const day = fromKey(date)
   const quote = quoteOfDay(day)
   const empty = SLOTS.every((s) => sheet.slots[s.id].length === 0)
+  // 펼친 적 있는 장만 넘긴다 — 건너뛴 날은 없다 (F4 ②)
+  const dates = sheetDates()
+  const prev = dates.filter((d) => d < date).at(-1)
+  const next = dates.find((d) => d > date && d < todayKey)
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [date])
+
+  const navButton = 'flex items-center gap-1 rounded-md px-2 py-1 text-foreground active:bg-warm-sand'
 
   return (
     <>
-      <nav className="mb-3 flex items-center justify-center px-2 text-[15px] leading-6">
-        <button type="button" onClick={onToday} className="rounded-md px-2 py-1 text-foreground active:bg-warm-sand">
+      <nav className="mb-3 grid grid-cols-3 items-center px-1 text-[15px] leading-6">
+        <div>
+          {prev && (
+            <button type="button" onClick={() => onGo(prev)} className={navButton}>
+              <ChevronLeft size={16} strokeWidth={2} aria-hidden />
+              이전 장
+            </button>
+          )}
+        </div>
+        <button type="button" onClick={onToday} className={`${navButton} justify-self-center`}>
           오늘 장으로
         </button>
+        <div className="justify-self-end">
+          {next && (
+            <button type="button" onClick={() => onGo(next)} className={navButton}>
+              다음 장
+              <ChevronRight size={16} strokeWidth={2} aria-hidden />
+            </button>
+          )}
+        </div>
       </nav>
       <article
         aria-label={`${sheetTitle(day)} 지난 장`}

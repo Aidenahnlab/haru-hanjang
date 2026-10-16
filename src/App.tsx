@@ -32,7 +32,7 @@ export default function App() {
   return (
     <main className="mx-auto w-full max-w-[430px] px-3 pt-4 pb-28 sm:pt-12">
       {viewing ? (
-        <PastSheet date={viewing} onToday={() => setViewing(null)} />
+        <PastSheet date={viewing} todayKey={dateKey(today)} onGo={setViewing} onToday={() => setViewing(null)} />
       ) : (
         <TodaySheet key={dateKey(today)} today={today} onOpenPast={setViewing} />
       )}
