@@ -348,6 +348,10 @@
   /* F2 · 새 장 */
   .scr-greet { font-size: 12px; line-height: 1.5; color: var(--ds-text); margin-top: 12px !important; }
   .scr-left { margin-top: 8px; font-size: 12px; line-height: 1.5; color: var(--ds-muted); }
+  .scr-end { border-top: 1px solid var(--ds-border); margin-top: 4px; padding-top: 10px; font-size: 12px; line-height: 1.5; color: var(--ds-muted); }
+  .scr-end b { display: inline-block; margin-top: 6px; font-weight: 600; color: var(--ds-on-primary); background: var(--ds-primary); border-radius: 10px; padding: 5px 10px; font-size: 11px; }
+  .scr-todo.is-sent { color: var(--ds-muted); display: flex; justify-content: space-between; }
+  .scr-todo.is-sent em { font-style: normal; font-size: 10px; }
   .scr-left b { display: inline-block; margin-top: 6px; font-weight: 600; color: var(--ds-on-primary); background: var(--ds-primary); border-radius: 10px; padding: 5px 10px; font-size: 11px; }
 </style>
 </head>
@@ -369,6 +373,7 @@
           <li><a href="#screens">화면 목록</a></li>
           <li><a href="#f1">F1 첫 장에 적고 긋기</a></li>
           <li><a href="#f2">F2 아침에 새 장 펼치기</a></li>
+          <li><a href="#f3">F3 남은 일 내일로 보내기</a></li>
         </ul>
       </li>
     </ul>
@@ -378,7 +383,7 @@
     <header class="cover">
       <div class="eyebrow">Flows</div>
       <h1>하루한장</h1>
-      <p class="lead">플로우 4개 중 2개를 그렸어요. "할 일 그냥 가볍게 적어 둘 데 없나?"</p>
+      <p class="lead">플로우 4개 중 3개를 그렸어요. "할 일 그냥 가볍게 적어 둘 데 없나?"</p>
       <div class="meta">
         <span class="tag">최종 수정 2026-10-16</span>
         <span class="tag">반응형 웹 · 모바일 우선</span>
@@ -389,11 +394,12 @@
       <div class="section-label">Map</div>
       <h2>플로우 지도</h2>
       <div class="board">
-        <div class="board-col"><h3>후보 <span class="count">2</span></h3>
-          <div class="board-item"><span class="flow-id">F3</span><strong>남은 일 내일로 보내기</strong><p>"오늘 다 못 했네…"</p></div>
+        <div class="board-col"><h3>후보 <span class="count">1</span></h3>
           <div class="board-item"><span class="flow-id">F4</span><strong>지난 장 넘겨보기</strong><p>"지난주에 뭐 했더라?"</p></div>
         </div>
-        <div class="board-col"><h3>기획 완료 <span class="count">0</span></h3></div>
+        <div class="board-col"><h3>기획 완료 <span class="count">1</span></h3>
+          <a class="board-item" href="#f3"><span class="flow-id">F3</span><strong>남은 일 내일로 보내기</strong><p>"오늘 다 못 했네…"</p></a>
+        </div>
         <div class="board-col"><h3>UI 구현 <span class="count">1</span></h3>
           <a class="board-item" href="#f2"><span class="flow-id">F2 · 다시 오기</span><strong>아침에 새 장 펼치기</strong><p>"오늘 뭐 하기로 했더라?"</p></a>
         </div>
@@ -426,6 +432,7 @@
           <tbody>
             <tr><th>오늘 장</th><td>F1, F2</td><td>오늘 할 일을 4칸에 적고 긋기</td><td><a href="#f1">F1 ①</a></td></tr>
             <tr><th>오늘 장 · 새 장 (아침)</th><td>F2</td><td>넘긴 일과 바뀐 한 줄로 오늘을 이어 시작</td><td><a href="#f2">F2 ①</a></td></tr>
+            <tr><th>오늘 장 · 밤</th><td>F3</td><td>남은 일을 내일 같은 칸으로 보내고 편하게 닫기</td><td><a href="#f3">F3 ①</a></td></tr>
           </tbody>
         </table>
       </div>
@@ -605,6 +612,73 @@
 
       <div class="sub">변경 기록</div>
       <ul class="refs"><li>2026-10-16 기획 완료</li><li>2026-10-16 UI 구현 — 02-f2-new-sheet로 만들고 점검(REVIEW 2026-10-16). 새 장은 처음 열 때 바로 저장, 아침 인사는 진한 먹색, [오늘 장에 옮기기]는 테라코타 버튼이고 옮긴 일은 넘겨받은 일보다 위, 남은 일 줄은 고치거나 지워도 접힘, 예외 3개 추가. 넘긴 일 받기는 F3 전이라 흉내</li></ul>
+    </section>
+
+    <section class="section" id="f3">
+      <div class="section-label">F3 · 기획 완료</div>
+      <h2>남은 일 내일로 보내기</h2>
+      <div class="callout">
+        <p class="big">[내일로 보내기] 한 번에 남은 일이 내일 장 같은 칸으로 간다는 한마디를 보고 편하게 닫는다.</p>
+        <dl class="kv">
+          <dt>진입 동기</dt><dd>밤에 오늘 장을 다시 열어 보니 다 못 한 일이 남아 있다. "오늘 다 못 했네…"</dd>
+          <dt>상태 변화</dt><dd>다 못 한 하루 → 내일로 정돈된 하루 (탓하지 않고 옮겨 줌)</dd>
+        </dl>
+      </div>
+
+      <div class="sub">화면</div>
+      <p>①②는 모두 "오늘 장" 화면이다. 4칸 아래, 장 맨 끝에 한 줄이 놓이고 그 한 줄만 바뀐다.</p>
+      <div class="phones" style="--ds-font:Pretendard, -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif; --ds-bg:#f5f4ed; --ds-surface:#ffffff; --ds-border:#f0eee6; --ds-surface-alt:#e8e6dc; --ds-text:#141413; --ds-muted:#5e5d59; --ds-primary:#c96442; --ds-on-primary:#ffffff; --ds-radius:24px; --ds-btn-radius:12px; --ds-input-radius:12px; --ds-shadow:none; --ds-dark:#30302e"><div class="phone"><div class="phone-step">①<strong>오늘 장 · 밤 (남은 일이 있을 때)</strong></div><div class="phone-screen scr-desk"><div class="scr-sheet"><p class="scr-date">10월 16일 금요일</p><p class="scr-quote">"오늘의 한 줄 …"</p><div class="scr-slot"><p class="scr-slot-name">새벽</p><div class="scr-rule"></div></div><div class="scr-slot"><p class="scr-slot-name">오전</p><div class="scr-todo is-struck"><span>장 보기 메모하기</span></div><div class="scr-todo"><span>은행 들르기</span></div></div><div class="scr-slot"><p class="scr-slot-name">오후</p><div class="scr-rule"></div></div><div class="scr-slot"><p class="scr-slot-name">밤</p><div class="scr-todo"><span>책 한 장 읽기</span></div></div><div class="scr-end">남은 일 2개가 있어요.<br><b>내일로 보내기</b></div></div></div><p class="phone-note">[내일로 보내기] → ②</p></div><div class="phone"><div class="phone-step">②<strong>오늘 장 · 보낸 순간</strong></div><div class="phone-screen scr-desk"><div class="scr-sheet"><p class="scr-date">10월 16일 금요일</p><p class="scr-quote">"오늘의 한 줄 …"</p><div class="scr-slot"><p class="scr-slot-name">새벽</p><div class="scr-rule"></div></div><div class="scr-slot"><p class="scr-slot-name">오전</p><div class="scr-todo is-struck"><span>장 보기 메모하기</span></div><div class="scr-todo is-sent"><span>은행 들르기</span><em>내일로</em></div></div><div class="scr-slot"><p class="scr-slot-name">오후</p><div class="scr-rule"></div></div><div class="scr-slot"><p class="scr-slot-name">밤</p><div class="scr-todo is-sent"><span>책 한 장 읽기</span><em>내일로</em></div></div><div class="scr-end">남은 일 2개는 내일 같은 칸에 옮겨 둘게요.</div></div><div class="scr-toast">내일 장으로 보냈어요.<b>되돌리기</b></div></div><p class="phone-note">— (목표 순간)</p></div></div>
+
+      <div class="sub">단계</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>단계</th><th>화면</th><th>기능</th><th>주 행동 (→ 다음)</th><th>핵심 결정</th></tr></thead>
+          <tbody>
+            <tr><th>①</th><td>오늘 장 · 밤 (남은 일이 있을 때)</td><td>내일로 보내기(보내기)</td><td>[내일로 보내기] → ②</td><td>저녁 6시부터, 그지 않은 일이 있을 때만 장 맨 아래에 한 줄과 버튼. 낮에는 아무것도 띄우지 않음 — 채근하지 않으려고. 하나씩 고르지 않고 남은 일을 한 번에 보냄</td></tr>
+            <tr><th>②</th><td>오늘 장 · 보낸 순간</td><td>내일로 보내기(보내기)</td><td>— (목표 순간)</td><td>그 한 줄이 "남은 일 2개는 내일 같은 칸에 옮겨 둘게요."로 바뀌고 [되돌리기]가 잠깐. 보낸 일은 지우지 않고 제자리에 흐리게, 끝에 작게 "내일로"</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="sub">화면 상태</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>화면</th><th>빈</th><th>로딩</th><th>오류</th></tr></thead>
+          <tbody>
+            <tr><th>오늘 장 · 밤</th><td>적은 일을 모두 그었음 — 장 맨 끝에 "오늘 장, 다 그었어요 ✨ 가지런히 남겨 둘게요." (시간과 상관없이)</td><td>F1 ① 참고</td><td>보내기를 저장하지 못함 — "방금 보낸 할 일을 저장하지 못했어요. 잠시 후 다시 보내 주세요. (임시)" 보낸 모습은 화면에 남김</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="source">문구: "남은 일 2개가 있어요. (임시)" [내일로 보내기] · 보낸 뒤 "남은 일 2개는 내일 같은 칸에 옮겨 둘게요." · 띠 "내일 장으로 보냈어요. (임시)" [되돌리기]</p>
+
+      <div class="sub">예외</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>단계</th><th>상황</th><th>어떻게 동작하나</th></tr></thead>
+          <tbody>
+            <tr><th>②</th><td>보낸 뒤 새 할 일을 적음</td><td>새로 적은 일만 남은 일로 세어 한 줄과 [내일로 보내기]가 다시 보인다. 이미 보낸 일은 그대로 보낸 일</td></tr>
+            <tr><th>②</th><td>보낸 일을 자정 전에 해냄</td><td>톡 눌러 그으면 "내일로" 표시가 사라지고 내일로 가지 않는다</td></tr>
+            <tr><th>②</th><td>잘못 보냄</td><td>[되돌리기]로 보낸 표시를 풀고 ①로 돌아간다</td></tr>
+            <tr><th>②</th><td>보낸 일을 길게 눌러 고치거나 지움</td><td>F1과 같다. 고친 글로 내일 가고, 지우면 가지 않는다</td></tr>
+            <tr><th>전체</th><td>보내지 않고 잠</td><td>다음 날 아침 F2 ①의 남은 일 한 줄로 챙긴다</td></tr>
+            <tr><th>전체</th><td>며칠 뒤에 다시 엶</td><td>보낸 일은 다음에 펼치는 장으로 간다 (D-028)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="sub">첫 버전 범위</div>
+      <div class="compare">
+        <div class="compare-col is-do"><h3>첫 버전에 넣음</h3>
+          <ul><li>저녁 6시부터 남은 일 한 줄과 [내일로 보내기]</li><li>한 번에 보내기</li><li>보낸 일 흐리게 + "내일로"</li><li>되돌리기</li><li>다 그은 장의 한마디</li></ul>
+        </div>
+        <div class="compare-col"><h3>나중에</h3>
+          <ul><li>하나씩 골라 보내기</li><li>낮에도 보내기</li><li>밤 12시 자동 넘기기<span class="note">확장 아이디어</span></li></ul>
+        </div>
+      </div>
+      <p class="source">기본값으로 둔 것: 한 줄은 장 맨 아래 · 저녁 6시부터 · 남은 일 전부를 한 번에 · 보낸 일은 제자리에 흐리게 · 다 그은 한마디는 시간과 상관없이 · 이틀 넘긴 남은 일은 F2처럼 다시 챙기지 않음(D-033 유지)</p>
+
+      <div class="sub">변경 기록</div>
+      <ul class="refs"><li>2026-10-16 기획 완료</li></ul>
     </section>
 
     <footer class="footer">Vibe Studio · 원본: docs/FLOWS.md</footer>
