@@ -11,3 +11,9 @@
 | D-005 | 2026-10-16 | brand-voice | 서비스 이름: 하루한장 | 가칭이 마음에 들어 그대로 확정. 이름 검증(한국어 웹·Play·App Store): 미래엔의 초등 학습 브랜드·공부 습관 앱 "하루 한장"(App Store 교육)과 이름이 같음 — 컨셉(어른용 하루 투두 노트)은 달라 감수하기로 함, 투두·플래너 중 같은 이름은 못 찾음 · 버린 후보: 쓱, 네칸노트, 오늘장, 한장노트, 긋다, 새오오밤, 하루종이 | 유효 |
 | D-006 | 2026-10-16 | brand-voice | 브랜드 성격: 다정한 집사 — 정중한 · 조용한 · 너그러운 | 읽고 나서 "정돈됨"을 느끼게 · 버린 대안: 다정한, 단정한 | 유효 |
 | D-007 | 2026-10-16 | brand-voice | 금지선: 호텔 컨시어지·과잉 의전 톤, 무심할 만큼 과한 조용함, 영어·업계 용어, 계속 확인 묻기, 게임식 동기부여(연속 기록·배지), 채근하는 말 | 채근하는 말과 단어만 툭 던지는 말("2개 남음.")은 안 맞음 | 유효 |
+| D-008 | 2026-10-16 | design-brandfit | 레퍼런스 DESIGN.md: Claude (Anthropic) — oh-my-design (https://oh-my-design.kr/design-systems/claude) | 따뜻한 양피지 바탕·먹색 글씨·세리프 제목이 메모장 느낌에 가장 가까움 · 검토: Notion(흰 바탕), MUJI(근거 없는 옛 스냅샷) | 유효 |
+| D-009 | 2026-10-16 | design-brandfit | 아이콘: Lucide (`lucide-react`) | 균일한 2px 선이 펜 선처럼 보이고 "조용한" 성격에 맞음 · 검토: Phosphor | 유효 |
+| D-010 | 2026-10-16 | design-brandfit | 폰트 치환: Anthropic Sans → Pretendard, Anthropic Serif → Noto Serif KR | 레퍼런스 폰트는 비공개·한글 미지원. 크기·굵기·줄간격은 유지 · 검토: Gowun Batang | 유효 |
+| D-011 | 2026-10-16 | design-brandfit | 색값은 레퍼런스 그대로 유지, 테라코타 `#c96442`는 화면당 주요 행동 하나에만 | 강조색은 일부러 드물게 써서 재촉하지 않음 | 유효 |
+| D-012 | 2026-10-16 | design-brandfit | DESIGN.md에서 Brand Narrative·Personas 섹션 삭제 | VOICE.md·PRODUCT.md와 중복 | 유효 |
+| D-013 | 2026-10-16 | design-brandfit | 세리프(Noto Serif KR)는 오늘의 한 줄·날짜 제목에만 | 버튼·할 일·본문은 Pretendard | 유효 |
