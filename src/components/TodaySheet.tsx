@@ -11,7 +11,9 @@ import { SheetHeader } from './SheetHeader'
 import { Slot } from './Slot'
 import { Toast } from './Toast'
 
-export function TodaySheet({ today }: { today: Date }) {
+type Props = { today: Date; onOpenPast: (date: string) => void }
+
+export function TodaySheet({ today, onOpenPast }: Props) {
   const { toast, show, hide } = useToast()
   const onSaveError = useCallback(
     () => show('방금 적은 할 일을 저장하지 못했어요. 잠시 후 다시 적어 주세요.', undefined, 6000),
@@ -100,6 +102,7 @@ export function TodaySheet({ today }: { today: Date }) {
           sheet={sheet}
           onMoveLeftovers={moveFromLastSheet}
           quietMove={sendLineVisible(sheet, hour)}
+          onOpenPast={onOpenPast}
         />
         {SLOTS.map((s) => (
           <Slot

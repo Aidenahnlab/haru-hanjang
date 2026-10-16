@@ -23,3 +23,9 @@ export function dayBefore(key: string): string {
   const [y, m, d] = key.split('-').map(Number)
   return dateKey(new Date(y, m - 1, d - 1))
 }
+
+/** 날짜 열쇠를 그날 정오의 Date로 (지난 장의 제목·오늘의 한 줄에 쓴다) */
+export function fromKey(key: string): Date {
+  const [y, m, d] = key.split('-').map(Number)
+  return new Date(y, m - 1, d, 12)
+}

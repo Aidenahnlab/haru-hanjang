@@ -48,18 +48,23 @@ function hasSheet(date: string): boolean {
   }
 }
 
-/** 이 날짜보다 앞서 펼친 장 중 가장 최근 날짜 */
-function previousSheetDate(date: string): string | undefined {
+/** 이 기기에 펼쳐 둔 장의 날짜들, 오래된 것부터 */
+export function sheetDates(): string[] {
   try {
-    const dates = Object.keys(localStorage)
+    return Object.keys(localStorage)
       .filter((k) => k.startsWith(`${PREFIX}sheet:`))
       .map((k) => k.slice(`${PREFIX}sheet:`.length))
-      .filter((d) => d < date)
       .sort()
-    return dates.at(-1)
   } catch {
-    return undefined
+    return []
   }
+}
+
+/** 이 날짜보다 앞서 펼친 장 중 가장 최근 날짜 */
+export function previousSheetDate(date: string): string | undefined {
+  return sheetDates()
+    .filter((d) => d < date)
+    .at(-1)
 }
 
 /** 그 날의 장을 연다. 처음 여는 날이면 새 장을 펼쳐 저장해 둔다 (F2 ①) */

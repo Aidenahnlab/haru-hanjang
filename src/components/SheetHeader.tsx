@@ -1,6 +1,7 @@
 import { dayBefore, sheetTitle } from '../lib/date'
 import { quoteOfDay } from '../lib/quotes'
-import type { Sheet } from '../lib/storage'
+import { ChevronLeft } from 'lucide-react'
+import { previousSheetDate, type Sheet } from '../lib/storage'
 
 /** 안내 줄 — 이 기기의 첫 장이면 F1 안내, 그다음 장부터는 아침 인사 (F2 ①) */
 function greeting(sheet: Sheet): { text: string[]; quiet: boolean } {
@@ -17,15 +18,27 @@ type Props = {
   onMoveLeftovers: () => void
   /** 저녁에 [내일로 보내기]가 함께 보이면 옮기기는 조용한 버튼으로 — 강조색은 화면당 하나 (D-011) */
   quietMove?: boolean
+  onOpenPast: (date: string) => void
 }
 
-export function SheetHeader({ today, sheet, onMoveLeftovers, quietMove }: Props) {
+export function SheetHeader({ today, sheet, onMoveLeftovers, quietMove, onOpenPast }: Props) {
   const quote = quoteOfDay(today)
+  const pastDate = previousSheetDate(sheet.date)
   const greet = greeting(sheet)
   const leftoverCount = sheet.leftovers?.length ?? 0
   const leftoverFrom = sheet.prevDate === dayBefore(sheet.date) ? '어제 장' : '지난 장'
   return (
     <header className="pb-6">
+      {pastDate && (
+        <button
+          type="button"
+          onClick={() => onOpenPast(pastDate)}
+          className="-ml-1 mb-2 flex items-center gap-1 rounded-md px-1 py-1 text-[15px] leading-6 text-muted active:bg-canvas"
+        >
+          <ChevronLeft size={16} strokeWidth={2} aria-hidden />
+          지난 장 넘겨 보기
+        </button>
+      )}
       <h1 className="font-serif text-[36px] leading-[46.8px] font-medium tracking-[-0.01em]">
         {sheetTitle(today)}
       </h1>
