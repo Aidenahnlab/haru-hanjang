@@ -12,12 +12,13 @@ type Props = {
   onStartEditing: () => void
   onStopEditing: () => void
   onAdd: (text: string) => void
+  onDraft: (text: string) => void
   onToggle: (todo: Todo) => void
   onEdit: (todo: Todo, text: string) => void
   onDelete: (todo: Todo, index: number) => void
 }
 
-export function Slot({ id, label, todos, editing, onStartEditing, onStopEditing, onAdd, onToggle, onEdit, onDelete }: Props) {
+export function Slot({ id, label, todos, editing, onStartEditing, onStopEditing, onAdd, onDraft, onToggle, onEdit, onDelete }: Props) {
   const [menuFor, setMenuFor] = useState<string | null>(null)
   const [fixing, setFixing] = useState<string | null>(null)
   const closeMenu = useCallback(() => setMenuFor(null), [])
@@ -61,7 +62,7 @@ export function Slot({ id, label, todos, editing, onStartEditing, onStopEditing,
           ),
         )}
       </ul>
-      {editing && <TodoInput slotLabel={label} onSubmit={onAdd} onClose={onStopEditing} />}
+      {editing && <TodoInput slotLabel={label} onSubmit={onAdd} onDraft={onDraft} onClose={onStopEditing} />}
       {Array.from({ length: blankLines }, (_, i) => (
         <button
           key={i}

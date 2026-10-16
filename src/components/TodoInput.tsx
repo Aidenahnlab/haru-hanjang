@@ -6,10 +6,12 @@ type Props = {
   onClose: () => void
   /** 고치기일 때 원래 글. 엔터를 치면 다음 줄을 열지 않고 닫는다 */
   initialText?: string
+  /** 적던 글이 바뀔 때마다 — 엔터 없이 닫혀도 남기려고 */
+  onDraft?: (text: string) => void
 }
 
 /** 노트 선 위에 글씨가 놓이는 입력줄. 엔터로 적고, 빈 줄 엔터나 바깥을 누르면 닫힌다 */
-export function TodoInput({ slotLabel, onSubmit, onClose, initialText }: Props) {
+export function TodoInput({ slotLabel, onSubmit, onClose, initialText, onDraft }: Props) {
   const editing = initialText !== undefined
   const [text, setText] = useState(initialText ?? '')
   const ref = useRef<HTMLTextAreaElement>(null)
@@ -32,6 +34,7 @@ export function TodoInput({ slotLabel, onSubmit, onClose, initialText }: Props) 
     const value = text.trim()
     if (value) onSubmit(value)
     setText('')
+    onDraft?.('')
     return value
   }
 
@@ -43,7 +46,11 @@ export function TodoInput({ slotLabel, onSubmit, onClose, initialText }: Props) 
       enterKeyHint="enter"
       aria-label={editing ? '할 일 고치기' : `${slotLabel} 칸에 할 일 적기`}
       placeholder={`${slotLabel}에 할 일을 적어 두세요.`}
-      onChange={(e) => setText(e.target.value.replace(/\n/g, ''))}
+      onChange={(e) => {
+        const value = e.target.value.replace(/\n/g, '')
+        setText(value)
+        onDraft?.(value)
+      }}
       onKeyDown={(e) => {
         if (e.key !== 'Enter' || e.nativeEvent.isComposing) return
         e.preventDefault()

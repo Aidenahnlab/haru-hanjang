@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from 'react'
 import { dateKey } from '../lib/date'
 import { SLOTS, type SlotId } from '../lib/slots'
-import { hasSeenFirstStrike, markFirstStrikeSeen, type Todo } from '../lib/storage'
+import { hasSeenFirstStrike, markFirstStrikeSeen, saveDraft, type Todo } from '../lib/storage'
 import { useSheet } from '../lib/useSheet'
 import { useToast } from '../lib/useToast'
 import { SheetHeader } from './SheetHeader'
@@ -61,6 +61,7 @@ export function TodaySheet({ today }: { today: Date }) {
             onStartEditing={() => setEditing(s.id)}
             onStopEditing={() => setEditing((cur) => (cur === s.id ? null : cur))}
             onAdd={(text) => addTodo(s.id, text)}
+            onDraft={(text) => saveDraft({ date: dateKey(today), slot: s.id, text })}
             onToggle={(t) => toggle(s.id, t)}
             onEdit={(t, text) => editTodo(s.id, t.id, text)}
             onDelete={(t, i) => remove(s.id, t, i)}

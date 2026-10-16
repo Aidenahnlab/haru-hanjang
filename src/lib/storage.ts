@@ -55,3 +55,33 @@ export function markFirstStrikeSeen() {
     // 저장이 막혀도 이번 화면에서는 다시 띄우지 않는다 (useSheet가 기억)
   }
 }
+
+/** 엔터 없이 앱을 닫아도 남도록, 입력줄에 적던 글을 따로 적어 둔다 (F1 ② 예외) */
+type Draft = { date: string; slot: SlotId; text: string }
+
+export function saveDraft(draft: Draft | null) {
+  try {
+    if (mockSaveFail) return
+    if (draft && draft.text.trim()) localStorage.setItem(`${PREFIX}draft`, JSON.stringify(draft))
+    else localStorage.removeItem(`${PREFIX}draft`)
+  } catch {
+    // 저장이 막히면 적던 글은 이번 화면에만 남는다
+  }
+}
+
+/** 지난번에 적다 만 글이 있으면 그 날 장의 그 칸에 할 일로 옮겨 적는다 */
+export function applyPendingDraft() {
+  try {
+    const raw = localStorage.getItem(`${PREFIX}draft`)
+    if (!raw) return
+    localStorage.removeItem(`${PREFIX}draft`)
+    const draft = JSON.parse(raw) as Draft
+    const text = draft.text.trim()
+    if (!text || !SLOTS.some((s) => s.id === draft.slot)) return
+    const sheet = loadSheet(draft.date)
+    sheet.slots[draft.slot] = [...sheet.slots[draft.slot], { id: newId(), text, done: false }]
+    saveSheet(sheet)
+  } catch {
+    // 알아볼 수 없는 글이면 버린다
+  }
+}

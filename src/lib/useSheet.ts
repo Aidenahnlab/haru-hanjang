@@ -1,9 +1,12 @@
 import { useCallback, useState } from 'react'
 import type { SlotId } from './slots'
-import { loadSheet, newId, saveSheet, type Sheet, type Todo } from './storage'
+import { applyPendingDraft, loadSheet, newId, saveSheet, type Sheet, type Todo } from './storage'
 
 export function useSheet(date: string, onSaveError: () => void) {
-  const [sheet, setSheet] = useState<Sheet>(() => loadSheet(date))
+  const [sheet, setSheet] = useState<Sheet>(() => {
+    applyPendingDraft()
+    return loadSheet(date)
+  })
 
   // 화면은 언제나 바꾸고, 저장에 실패하면 알리기만 한다 (적은 글은 화면에 남긴다)
   const update = useCallback(
