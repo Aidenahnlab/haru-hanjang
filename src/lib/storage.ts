@@ -1,7 +1,12 @@
 import { SLOTS, type SlotId } from './slots'
 
 export type Todo = { id: string; text: string; done: boolean }
-export type Sheet = { date: string; slots: Record<SlotId, Todo[]> }
+export type Sheet = {
+  date: string
+  slots: Record<SlotId, Todo[]>
+  /** 이 장을 펼치기 바로 전에 펼친 장의 날짜. 없으면 이 기기의 첫 장 (F1) */
+  prevDate?: string
+}
 
 const PREFIX = 'haruhanjang:'
 
@@ -15,10 +20,40 @@ export function loadSheet(date: string): Sheet {
     const raw = localStorage.getItem(`${PREFIX}sheet:${date}`)
     if (!raw) return emptySheet(date)
     const saved = JSON.parse(raw) as Sheet
-    return { date, slots: { ...emptySheet(date).slots, ...saved.slots } }
+    return { ...saved, date, slots: { ...emptySheet(date).slots, ...saved.slots } }
   } catch {
     return emptySheet(date)
   }
+}
+
+function hasSheet(date: string): boolean {
+  try {
+    return localStorage.getItem(`${PREFIX}sheet:${date}`) !== null
+  } catch {
+    return false
+  }
+}
+
+/** 이 날짜보다 앞서 펼친 장 중 가장 최근 날짜 */
+function previousSheetDate(date: string): string | undefined {
+  try {
+    const dates = Object.keys(localStorage)
+      .filter((k) => k.startsWith(`${PREFIX}sheet:`))
+      .map((k) => k.slice(`${PREFIX}sheet:`.length))
+      .filter((d) => d < date)
+      .sort()
+    return dates.at(-1)
+  } catch {
+    return undefined
+  }
+}
+
+/** 그 날의 장을 연다. 처음 여는 날이면 새 장을 펼쳐 저장해 둔다 (F2 ①) */
+export function openSheet(date: string): Sheet {
+  if (hasSheet(date)) return loadSheet(date)
+  const sheet: Sheet = { ...emptySheet(date), prevDate: previousSheetDate(date) }
+  saveSheet(sheet)
+  return sheet
 }
 
 // 흉내: 저장 실패 — 주소 끝에 ?save=fail을 붙이면 저장이 막힌 것처럼 동작 (SETUP)

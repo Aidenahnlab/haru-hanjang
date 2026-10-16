@@ -50,7 +50,7 @@ export function TodaySheet({ today }: { today: Date }) {
   return (
     <>
       <article className="rounded-media border border-hairline bg-surface px-6 pt-10 pb-6 sm:p-12">
-        <SheetHeader today={today} />
+        <SheetHeader today={today} sheet={sheet} />
         {SLOTS.map((s) => (
           <Slot
             key={s.id}
