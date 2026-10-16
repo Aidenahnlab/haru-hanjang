@@ -75,11 +75,11 @@ export function openSheet(date: string): Sheet {
     for (const { id: slot } of SLOTS) {
       const open = prev.slots[slot].filter((t) => !t.done)
       const carried = open
-        .filter((t) => t.sent || mockSent)
+        .filter((t) => t.sent)
         .map((t) => ({ id: newId(), text: t.text, done: false }))
       sheet.slots[slot] = carried
       received += carried.length
-      for (const t of open) if (!(t.sent || mockSent)) leftovers.push({ slot, text: t.text })
+      for (const t of open) if (!t.sent) leftovers.push({ slot, text: t.text })
     }
     sheet.received = received
     if (leftovers.length) {
@@ -90,9 +90,6 @@ export function openSheet(date: string): Sheet {
   saveSheet(sheet)
   return sheet
 }
-
-// 흉내: 밤에 내일로 보내기 — F3를 만들기 전까지 주소에 &sent=1을 붙이면 지난 장의 남은 일을 보낸 것으로 친다 (SETUP)
-const mockSent = new URLSearchParams(location.search).get('sent') === '1'
 
 // 흉내: 저장 실패 — 주소 끝에 ?save=fail을 붙이면 저장이 막힌 것처럼 동작 (SETUP)
 const mockSaveFail = new URLSearchParams(location.search).get('save') === 'fail'
