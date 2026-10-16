@@ -1,11 +1,19 @@
 import { SLOTS, type SlotId } from './slots'
 
-export type Todo = { id: string; text: string; done: boolean }
+export type Todo = {
+  id: string
+  text: string
+  done: boolean
+  /** 밤에 내일로 보낸 일 (F3) */
+  sent?: boolean
+}
 export type Sheet = {
   date: string
   slots: Record<SlotId, Todo[]>
   /** 이 장을 펼치기 바로 전에 펼친 장의 날짜. 없으면 이 기기의 첫 장 (F1) */
   prevDate?: string
+  /** 지난 장에서 넘겨받은 일의 개수 — 아침 인사에 쓴다 */
+  received?: number
 }
 
 const PREFIX = 'haruhanjang:'
@@ -51,10 +59,27 @@ function previousSheetDate(date: string): string | undefined {
 /** 그 날의 장을 연다. 처음 여는 날이면 새 장을 펼쳐 저장해 둔다 (F2 ①) */
 export function openSheet(date: string): Sheet {
   if (hasSheet(date)) return loadSheet(date)
-  const sheet: Sheet = { ...emptySheet(date), prevDate: previousSheetDate(date) }
+  const prevDate = previousSheetDate(date)
+  const sheet: Sheet = { ...emptySheet(date), prevDate }
+  if (prevDate) {
+    // 넘긴 일은 달력상 내일이 아니라 다음에 펼치는 장으로 온다 — 같은 칸 맨 위에 (D-028)
+    const prev = loadSheet(prevDate)
+    let received = 0
+    for (const { id: slot } of SLOTS) {
+      const carried = prev.slots[slot]
+        .filter((t) => !t.done && (t.sent || mockSent))
+        .map((t) => ({ id: newId(), text: t.text, done: false }))
+      sheet.slots[slot] = carried
+      received += carried.length
+    }
+    sheet.received = received
+  }
   saveSheet(sheet)
   return sheet
 }
+
+// 흉내: 밤에 내일로 보내기 — F3를 만들기 전까지 주소에 &sent=1을 붙이면 지난 장의 남은 일을 보낸 것으로 친다 (SETUP)
+const mockSent = new URLSearchParams(location.search).get('sent') === '1'
 
 // 흉내: 저장 실패 — 주소 끝에 ?save=fail을 붙이면 저장이 막힌 것처럼 동작 (SETUP)
 const mockSaveFail = new URLSearchParams(location.search).get('save') === 'fail'

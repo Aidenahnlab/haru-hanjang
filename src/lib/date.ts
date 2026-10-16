@@ -17,3 +17,9 @@ export function dayOfYear(d: Date): number {
   const start = new Date(d.getFullYear(), 0, 0)
   return Math.floor((d.getTime() - start.getTime()) / 86_400_000)
 }
+
+/** 날짜 열쇠 하루 앞 (예: 2026-10-17 → 2026-10-16) */
+export function dayBefore(key: string): string {
+  const [y, m, d] = key.split('-').map(Number)
+  return dateKey(new Date(y, m - 1, d - 1))
+}

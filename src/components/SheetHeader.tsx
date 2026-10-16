@@ -1,11 +1,14 @@
-import { sheetTitle } from '../lib/date'
+import { dayBefore, sheetTitle } from '../lib/date'
 import { quoteOfDay } from '../lib/quotes'
 import type { Sheet } from '../lib/storage'
 
 /** 안내 줄 — 이 기기의 첫 장이면 F1 안내, 그다음 장부터는 아침 인사 (F2 ①) */
 function greeting(sheet: Sheet): { text: string[]; quiet: boolean } {
   if (!sheet.prevDate) return { text: ['오늘 장을 펼쳐 두었어요.', '칸을 톡 눌러 적어 보세요.'], quiet: true }
-  return { text: ['새 장이 펼쳐졌어요 ☀️', '오늘의 한 줄도 바뀌었어요.'], quiet: false }
+  const n = sheet.received ?? 0
+  if (n === 0) return { text: ['새 장이 펼쳐졌어요 ☀️', '오늘의 한 줄도 바뀌었어요.'], quiet: false }
+  const from = sheet.prevDate === dayBefore(sheet.date) ? '어제' : '지난 장에서'
+  return { text: ['오늘 장이 준비됐어요 ☀️', `${from} 넘긴 일 ${n}개가 기다리고 있어요!`], quiet: false }
 }
 
 export function SheetHeader({ today, sheet }: { today: Date; sheet: Sheet }) {
