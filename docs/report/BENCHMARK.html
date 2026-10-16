@@ -1,0 +1,515 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>하루한장 — Benchmark</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root {
+    --bg: #ffffff;
+    --surface: #f7f7f8;
+    --line: #e7e7ea;
+    --ink: #17171a;
+    --ink-2: #4b4b55;
+    --ink-3: #8a8a96;
+    --accent: #2f6bff;
+    --accent-soft: #eef3ff;
+    --good: #12805c;
+    --good-soft: #e9f6f0;
+    --bad: #c8372d;
+    --bad-soft: #fcefee;
+    --radius: 12px;
+    --sidebar: 248px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 32px; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+    word-break: keep-all;
+  }
+  a { color: inherit; }
+
+  /* ---------- layout ---------- */
+  .layout { display: grid; grid-template-columns: var(--sidebar) minmax(0, 1fr); min-height: 100vh; }
+  main { min-width: 0; }
+  .sidebar {
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    border-right: 1px solid var(--line); padding: 28px 20px;
+  }
+  main { max-width: 820px; width: 100%; padding: 56px 56px 96px; }
+  main.is-wide { max-width: 1480px; }
+  main.is-wide .cover, main.is-wide .section > p, main.is-wide .callout { max-width: 820px; }
+
+  /* ---------- sidebar ---------- */
+  .brand { font-weight: 700; font-size: 16px; letter-spacing: -0.01em; }
+  .brand small { display: block; font-weight: 500; font-size: 12px; color: var(--ink-3); letter-spacing: 0; }
+  .nav { list-style: none; margin: 28px 0 0; padding: 0; }
+  .nav-group { font-size: 11px; font-weight: 600; color: var(--ink-3); letter-spacing: 0.06em; text-transform: uppercase; margin: 0 0 8px; }
+  .nav a {
+    display: flex; align-items: center; gap: 8px; text-decoration: none;
+    padding: 6px 10px; border-radius: 8px; color: var(--ink-2); font-size: 14px;
+  }
+  .nav a:hover { background: var(--surface); }
+  .nav .step { font-size: 11px; color: var(--ink-3); width: 14px; font-variant-numeric: tabular-nums; }
+  .nav .is-current > a { background: var(--surface); color: var(--ink); font-weight: 600; }
+  .nav .is-pending > a { color: var(--ink-3); pointer-events: none; }
+  .nav .is-pending > a::after { content: "준비 중"; margin-left: auto; font-size: 11px; }
+  .toc { list-style: none; margin: 4px 0 8px 22px; padding: 0 0 0 10px; border-left: 1px solid var(--line); }
+  .toc a { padding: 4px 10px; font-size: 13px; color: var(--ink-3); }
+  .toc a.is-active { color: var(--accent); font-weight: 600; background: none; }
+
+  /* ---------- cover ---------- */
+  .cover { padding-bottom: 40px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+  .eyebrow { font-size: 12px; font-weight: 600; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase; }
+  .cover h1 { font-size: 40px; line-height: 1.2; letter-spacing: -0.03em; margin: 10px 0 14px; }
+  .lead { font-size: 20px; line-height: 1.55; color: var(--ink-2); margin: 0; letter-spacing: -0.01em; }
+  .meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 20px; }
+  .tag { font-size: 12px; color: var(--ink-2); background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; }
+
+  /* ---------- section ---------- */
+  .section { padding-top: 48px; }
+  .section-label { font-size: 12px; font-weight: 600; color: var(--ink-3); letter-spacing: 0.06em; text-transform: uppercase; }
+  .section h2 { font-size: 22px; letter-spacing: -0.02em; margin: 4px 0 16px; }
+  .section p { margin: 0 0 12px; color: var(--ink-2); }
+
+  /* ---------- flow ---------- */
+  .flow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
+  .flow-step { position: relative; background: var(--surface); border-radius: var(--radius); padding: 18px; }
+  .flow-step:not(:last-child)::after {
+    content: "→"; position: absolute; right: -21px; top: 50%; transform: translateY(-50%);
+    color: var(--ink-3); font-size: 16px;
+  }
+  .flow-step h3 { font-size: 13px; color: var(--ink-3); font-weight: 600; margin: 0 0 6px; }
+  .flow-step p { margin: 0; color: var(--ink); font-size: 14px; }
+
+  /* ---------- cards ---------- */
+  .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .grid > .card:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .card { border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; }
+  .card h3 { font-size: 15px; margin: 0 0 4px; letter-spacing: -0.01em; }
+  .card p { margin: 0; font-size: 14px; color: var(--ink-2); }
+  .card .num { font-size: 12px; color: var(--accent); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .card.is-muted { border-style: dashed; background: none; }
+  .card.is-muted h3, .card.is-muted p { color: var(--ink-3); }
+  .sub { font-size: 13px; font-weight: 600; color: var(--ink-3); margin: 24px 0 10px; }
+
+  /* ---------- callout ---------- */
+  .callout { background: var(--accent-soft); border-radius: var(--radius); padding: 22px 24px; }
+  .callout .big { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; margin: 0 0 12px; color: var(--ink); }
+  .callout.is-empty { background: none; border: 1px dashed var(--line); color: var(--ink-3); text-align: center; padding: 28px; }
+  .callout.is-empty p { color: var(--ink-3); margin: 0; }
+  .source { font-size: 12px; color: var(--ink-3); margin-top: 12px; }
+
+  /* ---------- key-value ---------- */
+  .kv { display: grid; grid-template-columns: 120px 1fr; gap: 10px 16px; margin: 0; }
+  .kv dt { color: var(--ink-3); font-size: 13px; padding-top: 1px; }
+  .kv dd { margin: 0; color: var(--ink); }
+
+  .card .kv { grid-template-columns: 1fr; gap: 2px; margin-top: 10px; }
+  .card .kv dd { margin-bottom: 8px; font-size: 14px; color: var(--ink-2); }
+
+  /* ---------- table ---------- */
+  .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); }
+  .table-wrap table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .table-wrap th, .table-wrap td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+  .table-wrap thead th { background: var(--surface); color: var(--ink-2); font-size: 13px; font-weight: 600; white-space: nowrap; }
+  .table-wrap tbody th { font-weight: 600; color: var(--ink); white-space: nowrap; }
+  .table-wrap td { color: var(--ink-2); }
+  .table-wrap tr:last-child > * { border-bottom: 0; }
+  .table-wrap a { color: var(--accent); text-decoration: none; }
+  .table-wrap code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; background: var(--surface); padding: 1px 5px; border-radius: 4px; }
+  .table-wrap + .sub { margin-top: 28px; }
+  .table-wrap + p { margin-top: 12px; }
+
+  /* ---------- shots ---------- */
+  .shots { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .shots.is-mobile { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .shot { margin: 0; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: var(--bg); }
+  .shot img { display: block; width: 100%; height: auto; background: var(--surface); border-bottom: 1px solid var(--line); }
+  .shot figcaption { padding: 14px 16px; }
+  .shot figcaption strong { display: block; font-size: 14px; }
+  .shot figcaption p { margin: 4px 0 0; font-size: 13px; color: var(--ink-2); }
+  .shot .source { margin-top: 8px; }
+  .source a { color: inherit; }
+
+  /* ---------- refs ---------- */
+  .refs { margin: 0; padding-left: 18px; font-size: 14px; color: var(--ink-2); }
+  .refs li { margin-bottom: 6px; }
+  .refs a { color: var(--accent); text-decoration: none; word-break: break-all; }
+
+  /* ---------- spectrum ---------- */
+  .spectrum { display: grid; gap: 14px; }
+  .spectrum-row { display: grid; grid-template-columns: 110px minmax(0, 1fr) 110px; align-items: center; gap: 16px; font-size: 13px; }
+  .spectrum-label { color: var(--ink-3); }
+  .spectrum-row .spectrum-label:last-child { text-align: right; }
+  .spectrum-track { position: relative; display: flex; justify-content: space-between; align-items: center; height: 16px; }
+  .spectrum-track::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 2px; background: var(--line); transform: translateY(-50%); }
+  .spectrum-track i { position: relative; width: 10px; height: 10px; border-radius: 50%; background: var(--bg); border: 2px solid var(--line); }
+  .spectrum-track i.is-on { width: 16px; height: 16px; background: var(--accent); border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+
+  /* ---------- compare ---------- */
+  .compare { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .compare-col { border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; }
+  .compare-col h3 { font-size: 14px; margin: 0 0 10px; }
+  .compare-col.is-do h3 { color: var(--good); }
+  .compare-col.is-dont h3 { color: var(--bad); }
+  .compare-col.is-do h3::before { content: "✓ "; }
+  .compare-col.is-dont h3::before { content: "✕ "; }
+  .compare-col ul { list-style: none; margin: 0; padding: 0; }
+  .compare-col li { padding: 8px 0; border-top: 1px solid var(--line); font-size: 14px; color: var(--ink); }
+  .compare-col li:first-child { border-top: 0; padding-top: 0; }
+  .compare-col li .note { display: block; font-size: 13px; color: var(--ink-3); margin-top: 2px; }
+
+  /* ---------- say ---------- */
+  .say { margin: 8px 0 0; padding: 8px 12px; border-radius: 8px; background: var(--surface); font-size: 14px; color: var(--ink); border-left: 3px solid var(--line); }
+  .say.is-do { background: var(--good-soft); border-left-color: var(--good); }
+  .say.is-dont { background: var(--bad-soft); border-left-color: var(--bad); color: var(--ink-2); }
+
+  /* ---------- design specimen ---------- */
+  .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+  .swatch { border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; font-size: 13px; }
+  .swatch .chip-color { display: block; height: 72px; border-bottom: 1px solid var(--line); }
+  .swatch strong, .swatch code, .swatch .note { display: block; padding: 0 12px; }
+  .swatch strong { padding-top: 10px; font-size: 14px; }
+  .swatch code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; color: var(--ink-2); margin-top: 2px; }
+  .swatch .note { color: var(--ink-3); padding-bottom: 12px; margin-top: 4px; }
+  .swatches.is-small { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
+  .swatches.is-small .chip-color { height: 40px; }
+  .swatches.is-small .note { display: none; }
+  .swatches + .kv { margin-top: 16px; }
+  .type-scale { border: 1px solid var(--line); border-radius: var(--radius); }
+  .type-row { display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: 16px; align-items: baseline; padding: 16px 18px; border-top: 1px solid var(--line); }
+  .type-row:first-child { border-top: 0; }
+  .type-meta { font-size: 12px; color: var(--ink-3); }
+  .type-meta strong { display: block; font-size: 13px; color: var(--ink); }
+  .type-sample { color: var(--ink); overflow-wrap: anywhere; }
+  .token-rows { display: grid; gap: 10px; }
+  .token-row { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 16px; align-items: center; font-size: 13px; }
+  .token-box { width: 48px; height: 48px; background: var(--accent-soft); border: 1px solid var(--line); }
+  .token-box.is-space { height: 16px; min-width: 2px; border: 0; border-radius: 2px; background: var(--accent); }
+  .token-meta { color: var(--ink-2); }
+  .token-meta code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; color: var(--ink-3); margin-left: 6px; }
+  .dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; border: 1px solid var(--line); vertical-align: -1px; margin-right: 6px; }
+  .ds-preview {
+    border: 1px solid var(--line); border-radius: var(--radius); padding: 28px;
+    background: var(--ds-bg, #fff); color: var(--ds-text, var(--ink));
+    font-family: var(--ds-font, inherit); display: grid; gap: 20px;
+  }
+  .ds-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .ds-btn {
+    font: inherit; font-size: var(--ds-btn-size, 15px); font-weight: 600; cursor: default;
+    padding: var(--ds-btn-pad, 12px 20px); border-radius: var(--ds-btn-radius, var(--ds-radius, 10px)); white-space: nowrap;
+    background: var(--ds-primary, var(--accent)); color: var(--ds-on-primary, #fff); border: 1px solid transparent;
+  }
+  .ds-btn.is-secondary { background: var(--ds-surface, var(--surface)); color: var(--ds-text, var(--ink)); border-color: var(--ds-secondary-border, var(--ds-border, var(--line))); }
+  .ds-card {
+    background: var(--ds-surface, #fff); border: 1px solid var(--ds-border, var(--line));
+    border-radius: var(--ds-radius, 12px); box-shadow: var(--ds-shadow, none); padding: 18px; max-width: 360px;
+  }
+  .ds-card h4 { margin: 0 0 4px; font-size: var(--ds-title-size, 17px); }
+  .ds-card p { margin: 0; font-size: 14px; color: var(--ds-muted, var(--ink-2)); }
+  .ds-input {
+    font: inherit; font-size: 15px; width: 100%; max-width: 360px; padding: 12px 14px;
+    border-radius: var(--ds-input-radius, var(--ds-radius, 10px)); border: 1px solid var(--ds-border, var(--line));
+    background: var(--ds-bg, #fff); color: var(--ds-text, var(--ink));
+  }
+  .ds-chip { font-size: 13px; padding: 6px 12px; border-radius: 999px; background: var(--ds-surface, #fff); border: 1px solid var(--ds-border, var(--line)); color: var(--ds-text, var(--ink)); }
+  .ds-chip.is-on { border-color: transparent; background: var(--ds-primary-soft, color-mix(in srgb, var(--ds-primary, var(--accent)) 12%, #fff)); color: var(--ds-primary, var(--accent)); }
+  .preview-label { font-size: 12px; color: var(--ink-3); margin: 0 0 8px; font-family: "Pretendard Variable", Pretendard, sans-serif; }
+
+  /* ---------- flow board ---------- */
+  .board { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+  .board-col { background: var(--surface); border-radius: var(--radius); padding: 12px; min-height: 96px; }
+  .board-col h3 { display: flex; justify-content: space-between; font-size: 13px; color: var(--ink-2); margin: 0 0 10px; }
+  .board-col h3 .count { color: var(--ink-3); font-weight: 500; }
+  .board-col.is-done h3 { color: var(--good); }
+  .board-item { display: block; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; text-decoration: none; color: inherit; }
+  a.board-item:hover { border-color: var(--accent); }
+  .board-item .flow-id { font-size: 11px; font-weight: 700; color: var(--accent); }
+  .board-item strong { display: block; font-size: 14px; margin-top: 2px; }
+  .board-item p { margin: 4px 0 0; font-size: 12px; color: var(--ink-3); }
+
+  /* ---------- phones ---------- */
+  .phones { display: flex; flex-wrap: wrap; gap: 28px 34px; padding: 4px; font-family: var(--ds-font, inherit); }
+  /* 카드 크기는 모든 카드가 같다. 스크롤 화면만 .is-tall(1.5배)·.is-taller(2배)로 높이를 늘린다 */
+  .phone {
+    --phone-w: 196px; --phone-base-h: 420px; --phone-h: calc(var(--phone-base-h) * var(--phone-scale, 1));
+    position: relative; flex: 0 0 var(--phone-w); min-width: 0; /* min-width: 0 — 안의 내용이 넓어도 카드 폭이 늘어나지 않게 */
+  }
+  .phone.is-tall { --phone-scale: 1.5; }
+  .phone.is-taller { --phone-scale: 2; }
+  .phones.is-desktop .phone { --phone-w: 360px; --phone-base-h: 240px; }
+  .is-wide .phones { gap: 40px 48px; }
+  .is-wide .phone { --phone-w: 300px; --phone-base-h: 620px; }
+  .is-wide .phones.is-desktop .phone { --phone-w: 640px; --phone-base-h: 400px; }
+  .phone:not(:last-child)::after { content: "→"; position: absolute; right: -25px; top: 200px; color: var(--ink-3); font-size: 16px; font-family: "Pretendard Variable", Pretendard, sans-serif; }
+  .phone-step { font-size: 12px; color: var(--ink-3); margin-bottom: 6px; font-family: "Pretendard Variable", Pretendard, sans-serif; }
+  .phone-step strong { color: var(--ink); margin-left: 4px; }
+  .phone-screen {
+    position: relative; display: flex; flex-direction: column; gap: 10px; height: var(--phone-h); overflow: hidden;
+    border: 1px solid var(--line); border-radius: 24px; padding: 18px 14px 0;
+    background: var(--ds-bg, #fff); color: var(--ds-text, var(--ink)); box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+  .phones.is-desktop .phone-screen { border-radius: 12px; }
+  .is-wide .phone-screen { border-radius: 32px; padding: 24px 20px 0; gap: 14px; }
+  .is-wide .phones.is-desktop .phone-screen { border-radius: 14px; }
+  .is-wide .phone:not(:last-child)::after { right: -34px; top: 300px; }
+  .phone-screen .ds-btn { font-size: 13px; padding: 9px 14px; align-self: flex-start; }
+  .phone-screen .ds-card { padding: 12px; max-width: none; }
+  .phone-screen .ds-card h4 { font-size: 14px; }
+  .phone-screen .ds-card p { font-size: 12px; }
+  .phone-screen .ds-input { font-size: 13px; padding: 9px 11px; max-width: none; }
+  .phone-screen p { margin: 0; }
+  .phone-screen p.ph-title { font-size: 17px; font-weight: 700; line-height: 1.35; color: var(--ds-text, var(--ink)); }
+  .phone-screen p.ph-label { font-size: 12px; font-weight: 600; color: var(--ds-text, var(--ink)); margin-top: 4px; }
+  .phone-screen p.ph-text { font-size: 12px; line-height: 1.5; color: var(--ds-muted, var(--ink-2)); }
+  .ph-img { display: flex; align-items: center; justify-content: center; height: 88px; border-radius: var(--ds-radius, 10px); background: var(--ds-surface-alt, #eeeef0); font-size: 11px; color: var(--ds-muted, var(--ink-3)); }
+  .ph-img.is-map { height: 140px; background-image: linear-gradient(var(--ds-border, #dcdce0) 1px, transparent 1px), linear-gradient(90deg, var(--ds-border, #dcdce0) 1px, transparent 1px); background-size: 22px 22px; }
+  .ph-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .ph-sheet { margin: auto -14px 0; padding: 16px 14px 18px; border-radius: 18px 18px 0 0; background: var(--ds-surface, #fff); border-top: 1px solid var(--ds-border, var(--line)); box-shadow: 0 -6px 20px rgba(0,0,0,0.08); display: flex; flex-direction: column; gap: 8px; }
+  .ph-list { display: grid; gap: 8px; }
+  .ph-item { display: flex; gap: 10px; align-items: center; font-size: 12px; padding: 8px; border: 1px solid var(--ds-border, var(--line)); border-radius: var(--ds-radius, 10px); }
+  .ph-item::before { content: ""; flex: 0 0 32px; height: 40px; border-radius: 6px; background: var(--ds-surface-alt, #eeeef0); }
+  .ph-more {
+    position: absolute; left: 0; right: 0; bottom: 0; padding: 32px 0 12px; text-align: center; font-size: 11px;
+    color: var(--ds-muted, var(--ink-3)); background: linear-gradient(to bottom, transparent, var(--ds-bg, #fff) 55%);
+  }
+  .ph-bar { margin-top: auto; display: flex; justify-content: space-around; border-top: 1px solid var(--ds-border, var(--line)); padding: 10px 0 14px; font-size: 11px; color: var(--ds-muted, var(--ink-3)); }
+  .phone-note { font-size: 12px; color: var(--ink-2); margin-top: 8px; font-family: "Pretendard Variable", Pretendard, sans-serif; }
+
+  /* ---------- chips ---------- */
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; font-size: 14px; color: var(--ink-2); }
+  .chip.is-selected { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+  .chip.is-selected::before { content: "✓ "; }
+
+  .footer { margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 12px; color: var(--ink-3); }
+
+  /* ---------- responsive ---------- */
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: minmax(0, 1fr); }
+    .sidebar { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--line); padding: 16px; }
+    .nav { margin-top: 12px; display: flex; gap: 4px; overflow-x: auto; }
+    .nav-group, .toc { display: none; }
+    .nav a { white-space: nowrap; }
+    .nav .is-pending > a::after { content: none; }
+    main { padding: 32px 16px 64px; }
+    .cover h1 { font-size: 30px; }
+    .lead { font-size: 17px; }
+    .flow { grid-template-columns: 1fr; gap: 20px; }
+    .flow-step:not(:last-child)::after { content: "↓"; right: auto; left: 50%; top: auto; bottom: -20px; transform: translateX(-50%); }
+    .grid { grid-template-columns: 1fr; }
+    .shots { grid-template-columns: 1fr; }
+    .compare { grid-template-columns: 1fr; }
+    .type-row { grid-template-columns: 1fr; gap: 6px; }
+    .ds-preview { padding: 18px; }
+    .board { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .is-wide .phone, .is-wide .phones.is-desktop .phone { flex-basis: 100%; max-width: 340px; }
+    .phone:not(:last-child)::after, .is-wide .phone:not(:last-child)::after { content: "↓"; right: auto; left: 50%; top: auto; bottom: -26px; transform: translateX(-50%); }
+    .spectrum-row { grid-template-columns: 72px minmax(0, 1fr) 72px; gap: 10px; }
+    .shots.is-mobile { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .kv { grid-template-columns: 1fr; gap: 2px; }
+    .kv dd { margin-bottom: 10px; }
+  }
+  @media print {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    main { max-width: none; padding: 0; }
+    .section { break-inside: avoid; }
+    .shot, .card { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <aside class="sidebar">
+    <div class="brand">하루한장<small>Vibe Studio</small></div>
+    <ul class="nav">
+      <li class="nav-group">기획 문서</li>
+      <li><a href="PRODUCT.html"><span class="step">1</span>Product</a></li>
+      <li class="is-current">
+        <a href="BENCHMARK.html"><span class="step">2</span>Benchmark</a>
+        <ul class="toc">
+          <li><a href="#conclusion">결론</a></li>
+          <li><a href="#landscape">경쟁 서비스</a></li>
+          <li><a href="#screens">화면 캡처</a></li>
+          <li><a href="#compare">기능 비교</a></li>
+          <li><a href="#observations">관찰</a></li>
+          <li><a href="#sources">출처</a></li>
+        </ul>
+      </li>
+      <li class="is-pending"><a href="VOICE.html"><span class="step">3</span>Voice</a></li>
+      <li class="is-pending"><a href="DESIGN.html"><span class="step">4</span>Design</a></li>
+      <li class="is-pending"><a href="FLOWS.html"><span class="step">5</span>Flows</a></li>
+    </ul>
+  </aside>
+
+  <main>
+    <header class="cover">
+      <div class="eyebrow">Benchmark</div>
+      <h1>하루한장</h1>
+      <p class="lead">"종이처럼 단순한 플래너"(Tweek)와 "아침·오후·저녁으로 나누는 투두"(Todoz, Planly)는 각각 있지만, 하루 한 장만 보여주고 · 시간대 칸에 적고 · 그은 줄을 기록으로 남기는 셋을 한 화면에 묶은 서비스는 찾지 못했다.</p>
+      <div class="meta">
+        <span class="tag">조사일 2026-10-16</span>
+        <span class="tag">직접 경쟁 4 · 간접·참고 3</span>
+      </div>
+    </header>
+
+    <section class="section" id="conclusion">
+      <div class="section-label">Conclusion</div>
+      <h2>우리의 자리</h2>
+      <div class="callout">
+        <p class="big">폰에서 여는 하루 한 장의 종이 노트 — 시간대 4칸에 바로 적고, 펜으로 긋고, 그은 줄이 기록으로 남는 투두.</p>
+        <dl class="kv">
+          <dt>빈틈 · 기회</dt><dd>시간대 투두는 입력할 때 고를 게 많아지고, 종이 감성 앱은 주간 보기거나 iPad 펜 전용이라 "폰에서 하루 한 장"을 가볍게 쓰는 자리가 비어 있다. 끝낸 일을 줄 그어 남기는 기록과 매일 열 이유(명언)를 앞세운 곳도 찾지 못했다.</dd>
+          <dt>차별 포인트</dt><dd>① 하루 한 장 + 4칸만(날짜·시간·폴더 선택 없음) ② 줄 긋기 기록과 오늘의 명언으로 '다시 열고 싶은 종이'</dd>
+        </dl>
+      </div>
+    </section>
+
+    <section class="section" id="landscape">
+      <div class="section-label">Landscape</div>
+      <h2>경쟁·참고 서비스</h2>
+      <div class="sub">직접 경쟁</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>서비스</th><th>한 줄 포지셔닝</th><th>타깃</th><th>가격</th></tr></thead>
+          <tbody>
+            <tr><th><a href="https://tweek.so/">Tweek</a></th><td>"minimal weekly planner &amp; todo list app" — 펜과 종이처럼 자연스러운 주간 플래너. 못 한 일은 내일로 자동으로 넘김</td><td>복잡한 플래너가 싫은 개인·소규모 공유 사용자</td><td>무료 + Premium(노트·캘린더 연동 등). Premium 가격은 공식 페이지에서 확인 못 함 — 별도 확인 필요</td></tr>
+            <tr><th><a href="https://apps.apple.com/us/app/id6475300905">Todoz</a></th><td>할 일을 아침·오후·저녁 세션으로 나누는 iOS 투두·플래너</td><td>iPhone·iPad 사용자</td><td>무료, 앱 내 구입(Todoz Pro) US$0.99~19.99</td></tr>
+            <tr><th><a href="https://apps.apple.com/vu/app/planly/id6738336807">Planly</a></th><td>할 일을 아침·오후·저녁 시간 블록으로 나누는 작은 iPhone 앱</td><td>iPhone 사용자</td><td>무료</td></tr>
+            <tr><th><a href="https://apps.apple.com/us/app/id6444932769">Handy</a></th><td>손글씨로 적는 iPad 투두 플래너. 3일 전까지의 못 한 일을 불러올 수 있음</td><td>iPad·Apple Pencil 사용자</td><td>무료</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="sub">간접 경쟁 · 참고</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>서비스</th><th>왜 참고하는가</th><th>겹치는 지점</th></tr></thead>
+          <tbody>
+            <tr><th><a href="https://culturedcode.com/things/">Things 3</a></th><td>정교한 할 일 앱인데도 Today 목록 아래 "This Evening" 칸을 따로 둠 — 시간대를 대충 나누는 것이 기능이 많은 앱에서도 쓰이는 방식이라는 근거</td><td>오늘 목록, 저녁 칸</td></tr>
+            <tr><th>종이 플래너 · 태블릿 데일리 템플릿(Goodnotes 등)</th><td>사용자가 지금 대신 쓰는 것. 하루 한 장 레이아웃과 손글씨의 손맛</td><td>하루 한 장, 줄 긋기, 지난 장 넘겨보기</td></tr>
+            <tr><th><a href="https://apps.apple.com/us/app/id6745558716">Done. – 미니멀 투두 &amp; 데일리 플랜</a></th><td>완료한 일을 지우지 않고 보관해 다시 볼 수 있다는 설명 — "기록 남기기"를 내세운 미니멀 투두</td><td>오늘/어제/내일 단위, 완료 기록 보존</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="source">Done.의 내용은 검색 결과에 나온 App Store 설명 요약 기준이다. 공식 페이지가 열리지 않아(404) 직접 확인하지 못했다 — 별도 확인 필요.</p>
+    </section>
+
+    <section class="section" id="screens">
+      <div class="section-label">Screens</div>
+      <h2>핵심 경쟁 화면</h2>
+      <p>핵심 경쟁으로 Tweek(종이 같은 단순함 + 못 한 일 넘기기 — 분위기와 "내일로 보내기"가 가장 닮음)와 Todoz(아침·오후·저녁 칸 — 4칸 구조가 가장 닮음)를 골랐다.</p>
+      <div class="shots is-mobile">
+        <figure class="shot">
+          <img src="../images/tweek-home.png" alt="Tweek · 메인 화면">
+          <figcaption>
+            <strong>Tweek · 메인</strong>
+            <p>랜딩 카드 뒤에 실제 주간 화면(날짜별 줄 목록)이 깔려 있고, 예시 할 일이 "Hover to complete / Click to edit / Drag to other day"로 사용법을 바로 알려준다. 390폭에서는 랜딩 카드가 반투명하게 뒤 화면과 겹쳐 보였다(두 번 찍어도 같음, 375폭에서는 깔끔). 큰 굵은 산세리프 헤드라인, 흑백 위주에 할 일 색 라벨만 포인트</p>
+            <p class="source"><a href="https://tweek.so/">tweek.so</a> · 2026-10-16</p>
+          </figcaption>
+        </figure>
+        <figure class="shot">
+          <img src="../images/todoz-home.png" alt="Todoz · App Store 페이지">
+          <figcaption>
+            <strong>Todoz · App Store 페이지</strong>
+            <p>홍보 이미지 카피가 "Get your whole week done", "Never miss a deadline again" — 마감·생산성을 내세운다. 입력 화면에 폴더(Personal)·날짜(Jan 17)·시간(8:00PM) 선택 칩이 함께 보여 할 일 하나에 고를 것이 많다. 캘린더 아래 "Afternoon" 구역이 보인다</p>
+            <p class="source"><a href="https://apps.apple.com/us/app/id6475300905?l=ko">apps.apple.com</a> · 2026-10-16</p>
+          </figcaption>
+        </figure>
+      </div>
+      <p class="source">Todoz는 웹이 없는 iOS 앱이라 App Store 페이지를 메인 화면으로 캡처했다. 캡처 방법: Claude 앱의 브라우저 패널(390×844 뷰포트)에서 찍어 저장. 헤드리스 크롬 캡처는 모바일 화면을 제대로 흉내 내지 못해 오른쪽이 잘려서 쓰지 않았다.</p>
+    </section>
+
+    <section class="section" id="compare">
+      <div class="section-label">Compare</div>
+      <h2>핵심 기능 비교</h2>
+      <p>하루한장의 핵심 기능 기준.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>기능/측면</th><th>하루한장 (우리)</th><th>Tweek</th><th>Todoz</th><th>Planly</th><th>Handy</th></tr></thead>
+          <tbody>
+            <tr><th>기본 보기</th><td>오늘 한 장만</td><td>주간(월·일 보기도 있음)</td><td>일·주 캘린더</td><td>—</td><td>다이어리(하루 단위)</td></tr>
+            <tr><th>시간대 칸</th><td>새벽·오전·오후·밤 4칸</td><td>없음(날짜별 목록)</td><td>아침·오후·저녁</td><td>아침·오후·저녁</td><td>없음</td></tr>
+            <tr><th>입력할 때 고를 것</th><td>없음(칸 누르고 바로 적기)</td><td>—</td><td>폴더·날짜·시간 칩이 함께 보임(캡처)</td><td>—</td><td>없음(손글씨)</td></tr>
+            <tr><th>완료 표현</th><td>펜으로 긋듯 줄 긋기, 기록으로 남김</td><td>체크 아이콘(캡처)</td><td>스와이프로 완료/삭제</td><td>—</td><td>완료 버튼 → 맨 아래로 이동</td></tr>
+            <tr><th>못 한 일 넘기기</th><td>"내일로 보내기"로 내일 같은 칸에</td><td>다음 날로 자동 이동</td><td>날짜·카테고리 사이 이동</td><td>설명 없음</td><td>3일 전까지 불러오기</td></tr>
+            <tr><th>매일 여는 이유</th><td>오늘의 명언</td><td>—</td><td>위젯</td><td>—</td><td>—</td></tr>
+            <tr><th>지난 기록 보기</th><td>지난 장 넘겨보기</td><td>주 이동</td><td>캘린더</td><td>—</td><td>—</td></tr>
+            <tr><th>플랫폼</th><td>반응형 웹(모바일 우선)</td><td>웹·iOS·Android·Mac</td><td>iPhone·iPad</td><td>iPhone</td><td>iPad</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="source">"—"는 공식 페이지에서 확인하지 못한 항목이다.</p>
+    </section>
+
+    <section class="section" id="observations">
+      <div class="section-label">Observations</div>
+      <h2>잘하는 점 · 아쉬운 점</h2>
+      <div class="grid">
+        <div class="card"><h3>Tweek</h3><dl class="kv">
+          <dt>잘하는 점</dt><dd>"펜과 종이처럼"이라는 한 문장으로 정체성이 또렷하고, 랜딩에서 바로 실제 화면을 써보게 한다. 못 한 일 자동 넘기기가 기본.</dd>
+          <dt>아쉬운 점</dt><dd>(우리 기준) 기준이 '주'라서 하루에 집중하는 느낌은 약하고, 하루 안의 시간대 구분이 없다. 종이 '느낌'을 말하지만 화면은 깔끔한 디지털 목록에 가깝다.</dd>
+        </dl></div>
+        <div class="card"><h3>Todoz</h3><dl class="kv">
+          <dt>잘하는 점</dt><dd>아침·오후·저녁 세션으로 하루를 나누는 구조, 위젯으로 열 이유를 만든다.</dd>
+          <dt>아쉬운 점</dt><dd>폴더·날짜·시간·마감 알림까지 더해져 결국 "기능 많은 플래너"가 된다. 평가 8개로 아직 작은 앱.</dd>
+        </dl></div>
+        <div class="card"><h3>Planly</h3><dl class="kv">
+          <dt>잘하는 점</dt><dd>아침·오후·저녁 블록 하나에 집중한 단순함.</dd>
+          <dt>아쉬운 점</dt><dd>학생 프로그램(2024 Swift Accelerator)에서 만든 작은 앱으로 평가가 없고, 넘기기·기록 기능 설명이 없다.</dd>
+        </dl></div>
+        <div class="card"><h3>Handy</h3><dl class="kv">
+          <dt>잘하는 점</dt><dd>진짜 손글씨로 적는 손맛, 못 한 일 불러오기.</dd>
+          <dt>아쉬운 점</dt><dd>iPad + 펜 전용이라 폰에서 틈틈이 쓰기 어렵고, 평가 1개(3.0)로 리뷰에서 월간 보기가 없다는 불만.</dd>
+        </dl></div>
+        <div class="card"><h3>Things 3</h3><dl class="kv">
+          <dt>잘하는 점</dt><dd>Today 아래 This Evening 칸처럼 시간대를 '대충' 나누는 방식이 검증돼 있다.</dd>
+          <dt>아쉬운 점</dt><dd>(우리 기준) 프로젝트·날짜·마감까지 갖춘 본격 관리 도구라 우리 타깃에겐 무겁다.</dd>
+        </dl></div>
+      </div>
+    </section>
+
+    <section class="section" id="sources">
+      <div class="section-label">Sources</div>
+      <h2>출처</h2>
+      <ul class="refs">
+        <li><a href="https://tweek.so/">Tweek 공식 사이트</a></li>
+        <li><a href="https://apps.apple.com/us/app/%ED%88%AC%EB%91%90%EB%A6%AC%EC%8A%A4%ED%8A%B8-%ED%94%8C%EB%9E%98%EB%84%88-todoz/id6475300905?l=ko">Todoz — App Store</a></li>
+        <li><a href="https://apps.apple.com/vu/app/planly/id6738336807">Planly — App Store</a></li>
+        <li><a href="https://apps.apple.com/us/app/id6444932769">Handy - 내 손으로 끄적이는 플래너 — App Store</a></li>
+        <li><a href="https://apps.apple.com/us/app/id6745558716">Done. – 미니멀 투두 &amp; 데일리 플랜 — App Store (공식 페이지 404, 검색 결과 요약 기준)</a></li>
+        <li><a href="https://culturedcode.com/things/">Things 공식 사이트</a></li>
+        <li><a href="https://culturedcode.com/things/support/articles/4001304/">Things 지원 문서 — Today, Upcoming, Anytime, Someday</a></li>
+        <li><a href="https://culturedcode.com/things/guide/">Things 가이드</a></li>
+      </ul>
+    </section>
+
+    <footer class="footer">Vibe Studio · 원본: docs/BENCHMARK.md</footer>
+  </main>
+</div>
+
+<script>
+  // 스크롤 위치에 맞춰 사이드바 목차 강조
+  (function () {
+    var links = [].slice.call(document.querySelectorAll('.toc a[href^="#"]'));
+    var pairs = links.map(function (a) { return [a, document.getElementById(a.getAttribute('href').slice(1))]; })
+                     .filter(function (p) { return p[1]; });
+    if (!pairs.length) return;
+    function update() {
+      var current = pairs[0];
+      var atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
+      if (atBottom) current = pairs[pairs.length - 1];
+      else pairs.forEach(function (p) { if (p[1].getBoundingClientRect().top <= 120) current = p; });
+      pairs.forEach(function (p) { p[0].classList.toggle('is-active', p === current); });
+    }
+    window.addEventListener('scroll', update, { passive: true });
+    update();
+  })();
+</script>
+</body>
+</html>
