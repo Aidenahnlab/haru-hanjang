@@ -14,7 +14,7 @@ export function TodaySheet({ today }: { today: Date }) {
     () => show('방금 적은 할 일을 저장하지 못했어요. 잠시 후 다시 적어 주세요.', undefined, 6000),
     [show],
   )
-  const { sheet, addTodo, setDone } = useSheet(dateKey(today), onSaveError)
+  const { sheet, addTodo, setDone, editTodo, removeTodo, restoreTodo } = useSheet(dateKey(today), onSaveError)
   const [editing, setEditing] = useState<SlotId | null>(null)
   const firstStrikeSeen = useRef(hasSeenFirstStrike())
 
@@ -35,6 +35,18 @@ export function TodaySheet({ today }: { today: Date }) {
     }
   }
 
+  function remove(slot: SlotId, todo: Todo, index: number) {
+    // 묻지 않고 바로 지우고, 되돌리기만 열어 둔다 (D-020)
+    removeTodo(slot, todo.id)
+    show('할 일을 지웠어요.', {
+      label: '되돌리기',
+      onClick: () => {
+        restoreTodo(slot, todo, index)
+        hide()
+      },
+    })
+  }
+
   return (
     <>
       <article className="rounded-media border border-hairline bg-surface px-6 pt-10 pb-6 sm:p-12">
@@ -50,6 +62,8 @@ export function TodaySheet({ today }: { today: Date }) {
             onStopEditing={() => setEditing((cur) => (cur === s.id ? null : cur))}
             onAdd={(text) => addTodo(s.id, text)}
             onToggle={(t) => toggle(s.id, t)}
+            onEdit={(t, text) => editTodo(s.id, t.id, text)}
+            onDelete={(t, i) => remove(s.id, t, i)}
           />
         ))}
       </article>

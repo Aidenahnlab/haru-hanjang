@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react'
 import type { SlotId } from './slots'
-import { loadSheet, newId, saveSheet, type Sheet } from './storage'
+import { loadSheet, newId, saveSheet, type Sheet, type Todo } from './storage'
 
 export function useSheet(date: string, onSaveError: () => void) {
   const [sheet, setSheet] = useState<Sheet>(() => loadSheet(date))
@@ -35,5 +35,31 @@ export function useSheet(date: string, onSaveError: () => void) {
     [update],
   )
 
-  return { sheet, addTodo, setDone }
+  const editTodo = useCallback(
+    (slot: SlotId, id: string, text: string) =>
+      update((s) => ({
+        ...s,
+        slots: { ...s.slots, [slot]: s.slots[slot].map((t) => (t.id === id ? { ...t, text } : t)) },
+      })),
+    [update],
+  )
+
+  const removeTodo = useCallback(
+    (slot: SlotId, id: string) =>
+      update((s) => ({ ...s, slots: { ...s.slots, [slot]: s.slots[slot].filter((t) => t.id !== id) } })),
+    [update],
+  )
+
+  /** 지운 할 일을 원래 자리에 되돌린다 */
+  const restoreTodo = useCallback(
+    (slot: SlotId, todo: Todo, index: number) =>
+      update((s) => {
+        const list = s.slots[slot].filter((t) => t.id !== todo.id)
+        list.splice(Math.min(index, list.length), 0, todo)
+        return { ...s, slots: { ...s.slots, [slot]: list } }
+      }),
+    [update],
+  )
+
+  return { sheet, addTodo, setDone, editTodo, removeTodo, restoreTodo }
 }

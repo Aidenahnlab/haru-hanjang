@@ -1,21 +1,33 @@
 import type { Todo } from '../lib/storage'
+import { useLongPress } from '../lib/useLongPress'
+import { TodoMenu } from './TodoMenu'
 
-type Props = { todo: Todo; onToggle: () => void }
+type Props = {
+  todo: Todo
+  menuOpen: boolean
+  onToggle: () => void
+  onOpenMenu: () => void
+  onCloseMenu: () => void
+  onEdit: () => void
+  onDelete: () => void
+}
 
-/** 적어 둔 할 일. 톡 누르면 펜 선이 왼쪽에서 오른쪽으로 그어지고, 다시 누르면 풀린다 */
-export function TodoItem({ todo, onToggle }: Props) {
+/** 적어 둔 할 일. 톡 누르면 펜 선이 그어지고(다시 누르면 풀림), 길게 누르면 고치기·지우기 */
+export function TodoItem({ todo, menuOpen, onToggle, onOpenMenu, onCloseMenu, onEdit, onDelete }: Props) {
+  const press = useLongPress(onOpenMenu, onToggle)
+
   return (
-    <li className="border-b border-dashed border-warm-sand">
+    <li className="relative border-b border-dashed border-warm-sand">
       <button
         type="button"
         aria-pressed={todo.done}
-        onClick={onToggle}
-        className="block w-full py-1 text-left text-[20px] leading-8 outline-none select-none focus-visible:bg-canvas"
+        aria-haspopup="menu"
+        {...press}
+        className="block w-full py-1 text-left text-[20px] leading-8 outline-none select-none [-webkit-touch-callout:none] focus-visible:bg-canvas"
       >
-        <span className={`pen-line transition-colors duration-300 ${todo.done ? 'is-struck text-muted/70' : ''}`}>
-          {todo.text}
-        </span>
+        <span className={`pen-line ${todo.done ? 'is-struck text-muted/70' : ''}`}>{todo.text}</span>
       </button>
+      {menuOpen && <TodoMenu onEdit={onEdit} onDelete={onDelete} onClose={onCloseMenu} />}
     </li>
   )
 }
