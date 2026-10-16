@@ -399,14 +399,13 @@
       <h2>플로우 지도</h2>
       <div class="board">
         <div class="board-col"><h3>후보 <span class="count">0</span></h3></div>
-        <div class="board-col"><h3>기획 완료 <span class="count">1</span></h3>
-          <a class="board-item" href="#f4"><span class="flow-id">F4</span><strong>지난 장 넘겨보기</strong><p>"지난주에 뭐 했더라?"</p></a>
-        </div>
+        <div class="board-col"><h3>기획 완료 <span class="count">0</span></h3></div>
         <div class="board-col"><h3>UI 구현 <span class="count">0</span></h3></div>
-        <div class="board-col is-done"><h3>기능 구현 <span class="count">3</span></h3>
+        <div class="board-col is-done"><h3>기능 구현 <span class="count">4</span></h3>
           <a class="board-item" href="#f1"><span class="flow-id">F1 · 첫 방문</span><strong>첫 장에 적고 긋기</strong><p>"할 일 그냥 가볍게 적어 둘 데 없나?"</p></a>
           <a class="board-item" href="#f2"><span class="flow-id">F2 · 다시 오기</span><strong>아침에 새 장 펼치기</strong><p>"오늘 뭐 하기로 했더라?"</p></a>
           <a class="board-item" href="#f3"><span class="flow-id">F3</span><strong>남은 일 내일로 보내기</strong><p>"오늘 다 못 했네…"</p></a>
+          <a class="board-item" href="#f4"><span class="flow-id">F4</span><strong>지난 장 넘겨보기</strong><p>"지난주에 뭐 했더라?"</p></a>
         </div>
       </div>
       <p class="source">기능 커버리지: 핵심 기능 6개 → 모두 F1~F4에 들어감. F3(밤)·F4(궁금할 때)는 시작하는 순간이 F2(아침)와 달라 따로 둠. 내일로 보내기는 밤에 보내는 쪽이 F3, 아침에 받거나 남은 일을 옮기는 쪽이 F2.</p>
@@ -698,7 +697,7 @@
     </section>
 
     <section class="section" id="f4">
-      <div class="section-label">F4 · 기획 완료</div>
+      <div class="section-label">F4 · 기능 구현</div>
       <h2>지난 장 넘겨보기</h2>
       <div class="callout">
         <p class="big">지난 장을 한 장씩 넘기며 그어 둔 줄들이 그대로 남아 있는 걸 다시 본다.</p>
@@ -716,7 +715,7 @@
         <table>
           <thead><tr><th>단계</th><th>화면</th><th>기능</th><th>주 행동 (→ 다음)</th><th>핵심 결정</th></tr></thead>
           <tbody>
-            <tr><th>①</th><td>오늘 장</td><td>지난 장 넘겨보기</td><td>[지난 장 넘겨 보기] → ②</td><td>날짜 위에 작은 글씨 링크 하나. 지난 장이 하나도 없으면(이 기기의 첫 장) 보이지 않음</td></tr>
+            <tr><th>①</th><td>오늘 장</td><td>지난 장 넘겨보기</td><td>[지난 장 넘겨 보기] → ②</td><td>날짜 위에 왼쪽 화살표가 붙은 작은 회색 글씨 링크 하나. 지난 장이 하나도 없으면(이 기기의 첫 장) 보이지 않음</td></tr>
             <tr><th>②</th><td>지난 장</td><td>지난 장 넘겨보기</td><td>[‹ 이전 장] [다음 장 ›]로 넘김 — (목표 순간)</td><td>읽기만 하는 기록 — 긋기·고치기·지우기 없음. 펼친 적 있는 장만 넘김(건너뛴 날은 없음). 가장 최근 지난 장에서는 [다음 장 ›]이 없고 [오늘 장으로]로 돌아감</td></tr>
           </tbody>
         </table>
@@ -727,7 +726,7 @@
         <table>
           <thead><tr><th>화면</th><th>빈</th><th>로딩</th><th>오류</th></tr></thead>
           <tbody>
-            <tr><th>지난 장</th><td>그날 적은 일이 없음 — 4칸 대신 "이 장엔 적어 둔 할 일이 없어요. (임시)"</td><td>F1 ① 참고</td><td>— (읽기만 해서 저장하지 않음)</td></tr>
+            <tr><th>지난 장</th><td>그날 적은 일이 없음 — 4칸을 그리지 않고 "이 장엔 적어 둔 할 일이 없어요. (임시)" 한 줄</td><td>F1 ① 참고</td><td>— (읽기만 해서 저장하지 않음)</td></tr>
           </tbody>
         </table>
       </div>
@@ -757,8 +756,20 @@
       </div>
       <p class="source">기본값으로 둔 것: 링크는 날짜 위 작은 글씨 · 읽기만 · 펼친 장만 넘김 · 새로고침하면 오늘 장 · 옮긴 남은 일은 표시 없이 못 한 일로</p>
 
+      <div class="sub">구현 점검</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>단계</th><th>화면 있음</th><th>실제 동작</th><th>근거</th></tr></thead>
+          <tbody>
+            <tr><th>① 오늘 장 · 링크</th><td>✓</td><td>✓ 기기에 지난 장이 있을 때만 보임</td><td>src/components/SheetHeader.tsx, src/lib/storage.ts(previousSheetDate)</td></tr>
+            <tr><th>② 지난 장</th><td>✓</td><td>✓ 기기에 저장된 그날 장을 읽어 보여주고, 펼친 장 사이를 넘김</td><td>src/components/PastSheet.tsx, src/lib/storage.ts(sheetDates), src/App.tsx</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="source">흉내 낸 곳: 없음(날짜·시각 <code>?now=</code>은 확인용).</p>
+
       <div class="sub">변경 기록</div>
-      <ul class="refs"><li>2026-10-16 기획 완료</li></ul>
+      <ul class="refs"><li>2026-10-16 기획 완료</li><li>2026-10-16 기능 구현 — 04-f4-past-sheets로 만들고 점검(REVIEW 2026-10-16). 링크는 화살표 붙은 회색 글씨, 빈 지난 장은 한 줄만, 넘기면 맨 위로</li></ul>
     </section>
 
     <footer class="footer">Vibe Studio · 원본: docs/FLOWS.md</footer>
