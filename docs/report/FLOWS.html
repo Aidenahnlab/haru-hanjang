@@ -341,8 +341,8 @@
   .scr-todo.is-struck span::after { content: ""; position: absolute; left: -2px; right: -3px; top: 52%; height: 1.5px; background: var(--ds-text); border-radius: 2px; transform: rotate(-1.2deg); }
   .scr-todo.is-typing::after { content: ""; display: inline-block; width: 1.5px; height: 14px; margin-left: 2px; vertical-align: -2px; background: var(--ds-text); }
   .scr-keyboard { margin: auto -14px 0; height: 150px; background: var(--ds-surface-alt); display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--ds-muted); }
-  .scr-toast { margin: auto 0 18px; background: var(--ds-surface); border: 1px solid var(--ds-border); border-radius: 12px; padding: 12px 14px; font-size: 12px; line-height: 1.5; color: var(--ds-text); box-shadow: 0 4px 16px rgba(20,20,19,0.06); }
-  .scr-toast b { color: var(--ds-primary); font-weight: 600; margin-left: 4px; white-space: nowrap; }
+  .scr-toast { margin: auto 0 18px; background: var(--ds-dark); border-radius: 12px; padding: 12px 14px; font-size: 12px; line-height: 1.5; color: var(--ds-bg); display: flex; justify-content: space-between; gap: 8px; }
+  .scr-toast b { color: var(--ds-surface); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; white-space: nowrap; }
   .scr-sheet.is-cut { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
   .scr-desk .scr-sheet:last-child { margin-bottom: 14px; }
 </style>
@@ -389,11 +389,11 @@
           <div class="board-item"><span class="flow-id">F3</span><strong>남은 일 내일로 보내기</strong><p>"오늘 다 못 했네…"</p></div>
           <div class="board-item"><span class="flow-id">F4</span><strong>지난 장 넘겨보기</strong><p>"지난주에 뭐 했더라?"</p></div>
         </div>
-        <div class="board-col"><h3>기획 완료 <span class="count">1</span></h3>
+        <div class="board-col"><h3>기획 완료 <span class="count">0</span></h3></div>
+        <div class="board-col"><h3>UI 구현 <span class="count">0</span></h3></div>
+        <div class="board-col is-done"><h3>기능 구현 <span class="count">1</span></h3>
           <a class="board-item" href="#f1"><span class="flow-id">F1 · 첫 방문</span><strong>첫 장에 적고 긋기</strong><p>"할 일 그냥 가볍게 적어 둘 데 없나?"</p></a>
         </div>
-        <div class="board-col"><h3>UI 구현 <span class="count">0</span></h3></div>
-        <div class="board-col is-done"><h3>기능 구현 <span class="count">0</span></h3></div>
       </div>
       <p class="source">기능 커버리지: 핵심 기능 6개 → 모두 F1~F4에 들어감. F3(밤)·F4(궁금할 때)는 시작하는 순간이 F2(아침)와 달라 따로 둠.</p>
       <div class="sub">기본 장치</div>
@@ -425,7 +425,7 @@
     </section>
 
     <section class="section" id="f1">
-      <div class="section-label">F1 · 기획 완료</div>
+      <div class="section-label">F1 · 기능 구현</div>
       <h2>첫 장에 적고 긋기</h2>
       <div class="callout">
         <p class="big">처음 적은 할 일에 펜 선이 쓱 그어지고, 지워지지 않고 남아 있는 걸 본다.</p>
@@ -437,7 +437,7 @@
 
       <div class="sub">화면</div>
       <p>①~④는 모두 같은 "오늘 장" 화면이다. 화면을 옮겨 다니지 않고 같은 종이 위에서 순간만 바뀐다.</p>
-      <div class="phones" style="--ds-font:Pretendard, -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif; --ds-bg:#f5f4ed; --ds-surface:#ffffff; --ds-border:#f0eee6; --ds-surface-alt:#e8e6dc; --ds-text:#141413; --ds-muted:#5e5d59; --ds-primary:#c96442; --ds-on-primary:#ffffff; --ds-radius:24px; --ds-btn-radius:12px; --ds-input-radius:12px; --ds-shadow:none"><div class="phone"><div class="phone-step">①<strong>오늘 장 (처음 열기)</strong></div><div class="phone-screen scr-desk"><div class="scr-sheet"><p class="scr-date">10월 16일 금요일</p><p class="scr-quote">"오늘의 한 줄 …"</p><p class="scr-author">— 지은이</p><p class="scr-guide">오늘 장을 펼쳐 두었어요.<br>칸을 톡 눌러 적어 보세요.</p><div class="scr-slot"><p class="scr-slot-name">새벽</p><div class="scr-rule"></div><div class="scr-rule"></div></div><div class="scr-slot"><p class="scr-slot-name">오전</p><div class="scr-rule"></div><div class="scr-rule"></div></div><div class="scr-slot"><p class="scr-slot-name">오후</p><div class="scr-rule"></div><div class="scr-rule"></div></div><div class="scr-slot"><p class="scr-slot-name">밤</p><div class="scr-rule"></div><div class="scr-rule"></div></div></div></div><p class="phone-note">칸 하나를 톡 → ②</p></div><div class="phone"><div class="phone-step">②<strong>오늘 장 · 적는 중</strong></div><div class="phone-screen scr-desk"><div class="scr-sheet"><p class="scr-date">10월 16일 금요일</p><p class="scr-quote">"오늘의 한 줄 …"</p><div class="scr-slot"><p class="scr-slot-name">새벽</p><div class="scr-rule"></div></div><div class="scr-slot"><p class="scr-slot-name">오전</p><div class="scr-todo is-typing">장 보기 메모하기</div><div class="scr-rule"></div></div><div class="scr-slot"><p class="scr-slot-name">오후</p><div class="scr-rule"></div></div><div class="scr-slot"><p class="scr-slot-name">밤</p><div class="scr-rule"></div></div></div><div class="scr-keyboard">키보드</div></div><p class="phone-note">적고 엔터 → ③</p></div><div class="phone"><div class="phone-step">③<strong>오늘 장 · 적어 둔 할 일</strong></div><div class="phone-screen scr-desk"><div class="scr-sheet"><p class="scr-date">10월 16일 금요일</p><p class="scr-quote">"오늘의 한 줄 …"</p><p class="scr-author">— 지은이</p><div class="scr-slot"><p class="scr-slot-name">새벽</p><div class="scr-rule"></div></div><div class="scr-slot"><p class="scr-slot-name">오전</p><div class="scr-todo"><span>장 보기 메모하기</span></div><div class="scr-todo"><span>은행 들르기</span></div></div><div class="scr-slot"><p class="scr-slot-name">오후</p><div class="scr-rule"></div></div><div class="scr-slot"><p class="scr-slot-name">밤</p><div class="scr-rule"></div></div></div></div><p class="phone-note">할 일을 톡 → ④</p></div><div class="phone"><div class="phone-step">④<strong>오늘 장 · 첫 줄을 그은 순간</strong></div><div class="phone-screen scr-desk"><div class="scr-sheet"><p class="scr-date">10월 16일 금요일</p><p class="scr-quote">"오늘의 한 줄 …"</p><p class="scr-author">— 지은이</p><div class="scr-slot"><p class="scr-slot-name">새벽</p><div class="scr-rule"></div></div><div class="scr-slot"><p class="scr-slot-name">오전</p><div class="scr-todo is-struck"><span>장 보기 메모하기</span></div><div class="scr-todo"><span>은행 들르기</span></div></div><div class="scr-slot"><p class="scr-slot-name">오후</p><div class="scr-rule"></div></div><div class="scr-slot"><p class="scr-slot-name">밤</p><div class="scr-rule"></div></div></div><div class="scr-toast">그은 줄은 지우지 않고 남겨 둘게요.<b>되돌리기</b></div></div><p class="phone-note">— (목표 순간)</p></div></div>
+      <div class="phones" style="--ds-font:Pretendard, -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif; --ds-bg:#f5f4ed; --ds-surface:#ffffff; --ds-border:#f0eee6; --ds-surface-alt:#e8e6dc; --ds-text:#141413; --ds-muted:#5e5d59; --ds-primary:#c96442; --ds-on-primary:#ffffff; --ds-radius:24px; --ds-btn-radius:12px; --ds-input-radius:12px; --ds-shadow:none; --ds-dark:#30302e"><div class="phone"><div class="phone-step">①<strong>오늘 장 (처음 열기)</strong></div><div class="phone-screen scr-desk"><div class="scr-sheet"><p class="scr-date">10월 16일 금요일</p><p class="scr-quote">"오늘의 한 줄 …"</p><p class="scr-author">— 지은이</p><p class="scr-guide">오늘 장을 펼쳐 두었어요.<br>칸을 톡 눌러 적어 보세요.</p><div class="scr-slot"><p class="scr-slot-name">새벽</p><div class="scr-rule"></div><div class="scr-rule"></div></div><div class="scr-slot"><p class="scr-slot-name">오전</p><div class="scr-rule"></div><div class="scr-rule"></div></div><div class="scr-slot"><p class="scr-slot-name">오후</p><div class="scr-rule"></div><div class="scr-rule"></div></div><div class="scr-slot"><p class="scr-slot-name">밤</p><div class="scr-rule"></div><div class="scr-rule"></div></div></div></div><p class="phone-note">칸 하나를 톡 → ②</p></div><div class="phone"><div class="phone-step">②<strong>오늘 장 · 적는 중</strong></div><div class="phone-screen scr-desk"><div class="scr-sheet"><p class="scr-date">10월 16일 금요일</p><p class="scr-quote">"오늘의 한 줄 …"</p><div class="scr-slot"><p class="scr-slot-name">새벽</p><div class="scr-rule"></div></div><div class="scr-slot"><p class="scr-slot-name">오전</p><div class="scr-todo is-typing">장 보기 메모하기</div><div class="scr-rule"></div></div><div class="scr-slot"><p class="scr-slot-name">오후</p><div class="scr-rule"></div></div><div class="scr-slot"><p class="scr-slot-name">밤</p><div class="scr-rule"></div></div></div><div class="scr-keyboard">키보드</div></div><p class="phone-note">적고 엔터 → ③</p></div><div class="phone"><div class="phone-step">③<strong>오늘 장 · 적어 둔 할 일</strong></div><div class="phone-screen scr-desk"><div class="scr-sheet"><p class="scr-date">10월 16일 금요일</p><p class="scr-quote">"오늘의 한 줄 …"</p><p class="scr-author">— 지은이</p><div class="scr-slot"><p class="scr-slot-name">새벽</p><div class="scr-rule"></div></div><div class="scr-slot"><p class="scr-slot-name">오전</p><div class="scr-todo"><span>장 보기 메모하기</span></div><div class="scr-todo"><span>은행 들르기</span></div></div><div class="scr-slot"><p class="scr-slot-name">오후</p><div class="scr-rule"></div></div><div class="scr-slot"><p class="scr-slot-name">밤</p><div class="scr-rule"></div></div></div></div><p class="phone-note">할 일을 톡 → ④</p></div><div class="phone"><div class="phone-step">④<strong>오늘 장 · 첫 줄을 그은 순간</strong></div><div class="phone-screen scr-desk"><div class="scr-sheet"><p class="scr-date">10월 16일 금요일</p><p class="scr-quote">"오늘의 한 줄 …"</p><p class="scr-author">— 지은이</p><div class="scr-slot"><p class="scr-slot-name">새벽</p><div class="scr-rule"></div></div><div class="scr-slot"><p class="scr-slot-name">오전</p><div class="scr-todo is-struck"><span>장 보기 메모하기</span></div><div class="scr-todo"><span>은행 들르기</span></div></div><div class="scr-slot"><p class="scr-slot-name">오후</p><div class="scr-rule"></div></div><div class="scr-slot"><p class="scr-slot-name">밤</p><div class="scr-rule"></div></div></div><div class="scr-toast">그은 줄은 지우지 않고 남겨 둘게요.<b>되돌리기</b></div></div><p class="phone-note">— (목표 순간)</p></div></div>
 
       <div class="sub">단계</div>
       <div class="table-wrap">
@@ -460,7 +460,7 @@
             <tr><th>오늘 장</th>
               <td>아무것도 적지 않은 첫 장 — "오늘 장을 펼쳐 두었어요. 칸을 톡 눌러 적어 보세요." / 빈 입력줄 — "오후에 할 일을 적어 두세요." (칸 이름은 누른 칸에 맞춰)</td>
               <td>종이 바탕·날짜·칸 이름을 먼저 그리고 할 일은 바로 채움(돌아가는 표시 없음)</td>
-              <td>브라우저가 저장을 막음 — "방금 적은 할 일을 저장하지 못했어요. 잠시 후 다시 적어 주세요." 적은 글은 화면에 남김</td></tr>
+              <td>브라우저가 저장을 막음 — "방금 적은 할 일을 저장하지 못했어요. 잠시 후 다시 적어 주세요." 화면 아래 어두운 띠로 6초쯤. 적은 글은 화면에 남김</td></tr>
           </tbody>
         </table>
       </div>
@@ -475,7 +475,9 @@
             <tr><th>②</th><td>아주 긴 할 일</td><td>줄을 바꿔 다 보여줌(자르지 않음)</td></tr>
             <tr><th>②</th><td>같은 할 일을 두 번 적음</td><td>그대로 둠(종이처럼)</td></tr>
             <tr><th>③</th><td>잘못 그음</td><td>다시 톡 누르면 줄이 풀림. 첫 긋기 때는 [되돌리기]도 있음</td></tr>
-            <tr><th>③</th><td>길게 눌러 지우기</td><td>묻지 않고 바로 지우고 "할 일을 지웠어요. (임시)" [되돌리기]를 잠깐 보여줌</td></tr>
+            <tr><th>③</th><td>길게 눌러 지우기</td><td>묻지 않고 바로 지우고 "할 일을 지웠어요." [되돌리기]를 5초쯤 보여줌. 되돌리면 원래 자리로</td></tr>
+            <tr><th>③</th><td>고치다가 글을 다 비움</td><td>원래 글을 그대로 둠(지우기는 메뉴의 [지우기]로만)</td></tr>
+            <tr><th>③</th><td>[고치기] 중에 앱을 닫음</td><td>원래 글로 남음. 엔터 없이 남는 건 새로 적던 글만</td></tr>
             <tr><th>전체</th><td>자정이 지나도록 장을 열어 둠</td><td>그 장을 그대로 둠. 새 장은 다음에 열 때 펼쳐짐(F2에서 다룸)</td></tr>
           </tbody>
         </table>
@@ -492,8 +494,22 @@
       </div>
       <p class="source">기본값으로 둔 것: 4칸은 세로로 한 장에 다 보이고 넘치면 장 전체 스크롤 · 엔터로 적고 다음 줄 이어짐, 적는 즉시 저장 · 그은 할 일은 제자리에 흐리게, 다시 톡 누르면 풀림 · 지우기는 묻지 않고 되돌리기만 · 첫 긋기 한마디는 한 번만 · 오늘의 한 줄은 앱 안의 명언 목록에서 날짜마다 하나(서버 없음), 지은이만 작게 · 데스크톱은 가운데 폰 폭 한 장</p>
 
+      <div class="sub">구현 점검</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>단계</th><th>화면 있음</th><th>실제 동작</th><th>근거</th></tr></thead>
+          <tbody>
+            <tr><th>① 오늘 장 (처음 열기)</th><td>✓</td><td>✓ 날짜·오늘의 한 줄(앱 안 명언 30개)·4칸</td><td>src/components/TodaySheet.tsx, SheetHeader.tsx, src/lib/quotes.ts</td></tr>
+            <tr><th>② 오늘 장 · 적는 중</th><td>✓</td><td>✓ 적는 즉시 기기에 저장, 엔터 전 적던 글도 남김</td><td>src/components/TodoInput.tsx, src/lib/storage.ts</td></tr>
+            <tr><th>③ 오늘 장 · 적어 둔 할 일</th><td>✓</td><td>✓ 긋기·풀기·고치기·지우기가 저장되고 다시 불러와짐</td><td>src/components/TodoItem.tsx, TodoMenu.tsx, src/lib/useSheet.ts</td></tr>
+            <tr><th>④ 첫 줄을 그은 순간</th><td>✓</td><td>✓ 한마디는 기기에 한 번만</td><td>src/components/TodaySheet.tsx, src/lib/storage.ts</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="source">흉내 낸 곳: 저장 실패 상황만 확인용 주소(<code>?save=fail</code>)로 재현. 첫 버전 범위가 원래 "이 기기에만 저장"이라 나머지는 실제 동작이다.</p>
+
       <div class="sub">변경 기록</div>
-      <ul class="refs"><li>2026-10-16 기획 완료</li></ul>
+      <ul class="refs"><li>2026-10-16 기획 완료</li><li>2026-10-16 기능 구현 — 01-f1-first-sheet로 만들고 점검(REVIEW 2026-10-16). 오늘 장의 날짜·한 줄 글씨를 폰 폭에 맞게 줄임, 칸 이름·빈 노트 선을 누르면 입력줄, 안내는 화면 아래 어두운 띠로 잠깐, 데스크톱 오른쪽 클릭 = 길게 누르기, 고치기 예외 2개 추가, 첫 긋기·지우기 문구 확정</li></ul>
     </section>
 
     <footer class="footer">Vibe Studio · 원본: docs/FLOWS.md</footer>
